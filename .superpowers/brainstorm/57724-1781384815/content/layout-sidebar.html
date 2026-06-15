@@ -1,0 +1,122 @@
+<h2>Propuesta 2: Sidebar + Imagen</h2>
+<p class="subtitle">Menú lateral con agrupaciones, imagen decorativa en la bienvenida</p>
+
+<div class="mockup" style="margin-bottom: 1.5rem; overflow:hidden;">
+  <div style="display:flex; min-height:500px;">
+    <!-- Sidebar -->
+    <div style="width:220px; background:#1E1B4B; color:white; display:flex; flex-direction:column; padding:0; flex-shrink:0;">
+      <!-- Logo area -->
+      <div style="padding:1rem; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; gap:10px;">
+        <div style="background:white; color:#1E1B4B; width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold;">S</div>
+        <span style="font-weight:700; font-size:1rem;">SEDER</span>
+      </div>
+
+      <!-- User info -->
+      <div style="padding:0.75rem 1rem; border-bottom:1px solid rgba(255,255,255,0.1); font-size:0.75rem; color:#A5B4FC;">
+        <div style="font-weight:500; color:white;">Admin</div>
+        <div>Administrador</div>
+      </div>
+
+      <!-- Navigation groups -->
+      <div style="flex:1; padding:0.75rem 0; overflow-y:auto;">
+        <div style="padding:0 1rem; margin-bottom:1rem;">
+          <div style="font-size:0.6rem; text-transform:uppercase; color:#818CF8; letter-spacing:1px; margin-bottom:6px;">Personas</div>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; background:rgba(255,255,255,0.1); font-size:0.8rem; cursor:pointer;">👤 Miembros</div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">👪 Familias</div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">💼 Profesiones</div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">🎖️ Roles Ecle.</div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">🤝 Grupos</div>
+          </div>
+        </div>
+        <div style="padding:0 1rem; margin-bottom:1rem;">
+          <div style="font-size:0.6rem; text-transform:uppercase; color:#818CF8; letter-spacing:1px; margin-bottom:6px;">Registro</div>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">✅ Asistencia</div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">📦 Inventario</div>
+          </div>
+        </div>
+        <div style="padding:0 1rem;">
+          <div style="font-size:0.6rem; text-transform:uppercase; color:#818CF8; letter-spacing:1px; margin-bottom:6px;">Administración</div>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">🔐 Usuarios</div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">🔧 Roles</div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">⛪ Iglesias</div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">📋 Auditoría</div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:0.8rem; cursor:pointer; color:#C7D2FE;">📄 Carga CSV</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logout at bottom -->
+      <div style="padding:0.75rem 1rem; border-top:1px solid rgba(255,255,255,0.1); font-size:0.8rem; color:#FCA5A5; cursor:pointer;">🚪 Cerrar Sesión</div>
+    </div>
+
+    <!-- Main content -->
+    <div style="flex:1; background:#F9FAFB; padding:1.5rem;">
+
+      <!-- Welcome row with image -->
+      <div style="display:flex; gap:1.5rem; margin-bottom:1.5rem;">
+        <div style="flex:1;">
+          <h3 style="margin:0 0 4px; font-size:1.3rem; font-weight:700; color:#1F2937;">Bienvenido, Admin</h3>
+          <p style="margin:0 0 12px; color:#6B7280; font-size:0.85rem;">Sistema de Administración Eclesial</p>
+          <div style="display:flex; gap:8px;">
+            <div style="background:#EEF2FF; color:#4F46E5; padding:7px 14px; border-radius:8px; font-size:0.8rem; font-weight:500; cursor:pointer; border:1px solid #C7D2FE;">📊 Estadísticas</div>
+            <div style="background:#EEF2FF; color:#4F46E5; padding:7px 14px; border-radius:8px; font-size:0.8rem; font-weight:500; cursor:pointer; border:1px solid #C7D2FE;">📄 Reportes</div>
+          </div>
+        </div>
+        <!-- Image placeholder -->
+        <div style="width:200px; height:120px; background:linear-gradient(135deg,#C7D2FE,#EEF2FF); border-radius:12px; display:flex; align-items:center; justify-content:center; border:1px solid #C7D2FE; flex-shrink:0;">
+          <div style="text-align:center; color:#4F46E5;">
+            <div style="font-size:2rem;">⛪</div>
+            <div style="font-size:0.65rem; margin-top:4px;">Iglesia</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle: Stats section (hidden by default) -->
+      <div style="background:#F3F4F6; border-radius:10px; padding:1rem; margin-bottom:1.5rem; display:none;">
+        <div style="font-size:0.8rem; color:#6B7280; text-align:center;">📊 Los gráficos y estadísticas aparecerían aquí al hacer clic en "Estadísticas"</div>
+      </div>
+
+      <!-- Toggle: Reports section (hidden by default) -->
+      <div style="background:#F3F4F6; border-radius:10px; padding:1rem; margin-bottom:1.5rem; display:none;">
+        <div style="font-size:0.8rem; color:#6B7280; text-align:center;">📄 Los enlaces de descarga Excel/PDF aparecerían aquí al hacer clic en "Reportes"</div>
+      </div>
+
+      <!-- Cards grid -->
+      <div>
+        <h4 style="margin:0 0 12px; font-weight:600; color:#374151; font-size:0.9rem;">Módulos disponibles</h4>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
+          <div style="background:white; border-radius:10px; padding:16px; text-align:center; border:1px solid #E5E7EB; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <div style="font-size:1.6rem; margin-bottom:4px;">👤</div>
+            <div style="font-weight:600; font-size:0.8rem; color:#374151;">Miembros</div>
+          </div>
+          <div style="background:white; border-radius:10px; padding:16px; text-align:center; border:1px solid #E5E7EB; cursor:pointer;">
+            <div style="font-size:1.6rem; margin-bottom:4px;">👪</div>
+            <div style="font-weight:600; font-size:0.8rem; color:#374151;">Familias</div>
+          </div>
+          <div style="background:white; border-radius:10px; padding:16px; text-align:center; border:1px solid #E5E7EB; cursor:pointer;">
+            <div style="font-size:1.6rem; margin-bottom:4px;">💼</div>
+            <div style="font-weight:600; font-size:0.8rem; color:#374151;">Profesiones</div>
+          </div>
+          <div style="background:white; border-radius:10px; padding:16px; text-align:center; border:1px solid #E5E7EB; cursor:pointer;">
+            <div style="font-size:1.6rem; margin-bottom:4px;">🎖️</div>
+            <div style="font-weight:600; font-size:0.8rem; color:#374151;">Roles Ecle.</div>
+          </div>
+          <div style="background:white; border-radius:10px; padding:16px; text-align:center; border:1px solid #E5E7EB; cursor:pointer;">
+            <div style="font-size:1.6rem; margin-bottom:4px;">🤝</div>
+            <div style="font-weight:600; font-size:0.8rem; color:#374151;">Grupos</div>
+          </div>
+          <div style="background:white; border-radius:10px; padding:16px; text-align:center; border:1px solid #E5E7EB; cursor:pointer;">
+            <div style="font-size:1.6rem; margin-bottom:4px;">✅</div>
+            <div style="font-weight:600; font-size:0.8rem; color:#374151;">Asistencia</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="text-align:center; color:#6B7280; font-size:0.85rem;">Sidebar oscuro con agrupaciones, área principal con imagen decorativa y tarjetas</p>
+<p style="text-align:center; font-weight:600; color:#1F2937;">¿Te gusta más con sidebar? ¿Dónde debería ir la imagen?</p>

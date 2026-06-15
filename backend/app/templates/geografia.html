@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geografía - SEDER</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex items-center gap-3">
+          <a href="/dashboard" class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center hover:bg-indigo-700">
+            <span class="text-white font-bold text-lg">S</span>
+          </a>
+          <div>
+            <h1 class="text-lg font-bold text-gray-900">Geografía</h1>
+            <p class="text-xs text-gray-500">Gestión de países, estados, municipios, ciudades y parroquias</p>
+          </div>
+        </div>
+        <button onclick="logout()" class="px-4 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition">Cerrar Sesión</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="border-b border-gray-200 mb-6">
+      <nav class="flex gap-6" id="tabNav">
+        <button onclick="switchTab('paises')" class="tab-btn px-1 py-3 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600" data-tab="paises">Países</button>
+        <button onclick="switchTab('estados')" class="tab-btn px-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="estados">Estados</button>
+        <button onclick="switchTab('municipios')" class="tab-btn px-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="municipios">Municipios</button>
+        <button onclick="switchTab('ciudades')" class="tab-btn px-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="ciudades">Ciudades</button>
+        <button onclick="switchTab('parroquias')" class="tab-btn px-1 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="parroquias">Parroquias</button>
+      </nav>
+    </div>
+
+    <div id="tabContent">
+      <div id="tab-paises" class="tab-panel">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex gap-3 flex-1 max-w-md">
+            <input type="text" id="searchPaises" placeholder="Buscar país..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+          </div>
+          <button onclick="abrirFormPais()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">+ Nuevo País</button>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
+                  <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="paisesTableBody" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+          <div id="paisesLoading" class="text-center py-8 text-gray-400">Cargando...</div>
+        </div>
+      </div>
+
+      <div id="tab-estados" class="tab-panel hidden">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex gap-3 flex-1 max-w-md">
+            <input type="text" id="searchEstados" placeholder="Buscar estado..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+          </div>
+          <button onclick="abrirFormEstado()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">+ Nuevo Estado</button>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">País</th>
+                  <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="estadosTableBody" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+          <div id="estadosLoading" class="text-center py-8 text-gray-400">Cargando...</div>
+        </div>
+      </div>
+
+      <div id="tab-municipios" class="tab-panel hidden">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex gap-3 flex-1 max-w-md">
+            <input type="text" id="searchMunicipios" placeholder="Buscar municipio..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+          </div>
+          <button onclick="abrirFormMunicipio()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">+ Nuevo Municipio</button>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Estado</th>
+                  <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="municipiosTableBody" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+          <div id="municipiosLoading" class="text-center py-8 text-gray-400">Cargando...</div>
+        </div>
+      </div>
+
+      <div id="tab-ciudades" class="tab-panel hidden">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex gap-3 flex-1 max-w-md">
+            <input type="text" id="searchCiudades" placeholder="Buscar ciudad..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+          </div>
+          <button onclick="abrirFormCiudad()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">+ Nueva Ciudad</button>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Estado</th>
+                  <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="ciudadesTableBody" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+          <div id="ciudadesLoading" class="text-center py-8 text-gray-400">Cargando...</div>
+        </div>
+      </div>
+
+      <div id="tab-parroquias" class="tab-panel hidden">
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex gap-3 flex-1 max-w-md">
+            <input type="text" id="searchParroquias" placeholder="Buscar parroquia..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+          </div>
+          <button onclick="abrirFormParroquia()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">+ Nueva Parroquia</button>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Municipio</th>
+                  <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="parroquiasTableBody" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
+          <div id="parroquiasLoading" class="text-center py-8 text-gray-400">Cargando...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Países -->
+  <div id="modalPais" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+    <div class="bg-white rounded-2xl w-full max-w-md mx-4">
+      <div class="p-6 border-b">
+        <h3 id="modalPaisTitle" class="text-lg font-bold text-gray-900">Nuevo País</h3>
+      </div>
+      <form id="paisForm" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+          <input type="text" id="paisNombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        </div>
+      </form>
+      <div class="p-6 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+        <button onclick="cerrarModal('modalPais')" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+        <button onclick="guardarPais()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Estados -->
+  <div id="modalEstado" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+    <div class="bg-white rounded-2xl w-full max-w-md mx-4">
+      <div class="p-6 border-b">
+        <h3 id="modalEstadoTitle" class="text-lg font-bold text-gray-900">Nuevo Estado</h3>
+      </div>
+      <form id="estadoForm" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+          <input type="text" id="estadoNombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">País *</label>
+          <select id="estadoPais" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"><option value="">Seleccione país</option></select>
+        </div>
+      </form>
+      <div class="p-6 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+        <button onclick="cerrarModal('modalEstado')" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+        <button onclick="guardarEstado()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Municipios -->
+  <div id="modalMunicipio" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+    <div class="bg-white rounded-2xl w-full max-w-md mx-4">
+      <div class="p-6 border-b">
+        <h3 id="modalMunicipioTitle" class="text-lg font-bold text-gray-900">Nuevo Municipio</h3>
+      </div>
+      <form id="municipioForm" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+          <input type="text" id="municipioNombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">País</label>
+          <select id="municipioPais" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"><option value="">Seleccione país</option></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+          <select id="municipioEstado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"><option value="">Seleccione estado</option></select>
+        </div>
+      </form>
+      <div class="p-6 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+        <button onclick="cerrarModal('modalMunicipio')" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+        <button onclick="guardarMunicipio()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ciudades -->
+  <div id="modalCiudad" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+    <div class="bg-white rounded-2xl w-full max-w-md mx-4">
+      <div class="p-6 border-b">
+        <h3 id="modalCiudadTitle" class="text-lg font-bold text-gray-900">Nueva Ciudad</h3>
+      </div>
+      <form id="ciudadForm" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+          <input type="text" id="ciudadNombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">País</label>
+          <select id="ciudadPais" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"><option value="">Seleccione país</option></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+          <select id="ciudadEstado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"><option value="">Seleccione estado</option></select>
+        </div>
+      </form>
+      <div class="p-6 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+        <button onclick="cerrarModal('modalCiudad')" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+        <button onclick="guardarCiudad()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Parroquias -->
+  <div id="modalParroquia" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+    <div class="bg-white rounded-2xl w-full max-w-md mx-4">
+      <div class="p-6 border-b">
+        <h3 id="modalParroquiaTitle" class="text-lg font-bold text-gray-900">Nueva Parroquia</h3>
+      </div>
+      <form id="parroquiaForm" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+          <input type="text" id="parroquiaNombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">País</label>
+          <select id="parroquiaPais" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"><option value="">Seleccione país</option></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+          <select id="parroquiaEstado" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"><option value="">Seleccione estado</option></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Municipio *</label>
+          <select id="parroquiaMunicipio" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"><option value="">Seleccione municipio</option></select>
+        </div>
+      </form>
+      <div class="p-6 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+        <button onclick="cerrarModal('modalParroquia')" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+        <button onclick="guardarParroquia()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/';
+    let editPaisId = null, editEstadoId = null, editMunicipioId = null, editCiudadId = null, editParroquiaId = null;
+
+    function logout() { localStorage.clear(); window.location.href = '/'; }
+
+    // --- Tab switching ---
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tab-' + tab).classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-indigo-600', 'text-indigo-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+      });
+      const activeBtn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+      activeBtn.classList.remove('border-transparent', 'text-gray-500');
+      activeBtn.classList.add('border-indigo-600', 'text-indigo-600');
+    }
+
+    // --- Modal helpers ---
+    function abrirModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById(id).classList.add('flex');
+    }
+    function cerrarModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.getElementById(id).classList.remove('flex');
+    }
+
+    // --- Países ---
+    async function cargarPaises(q = '') {
+      const url = q ? `/api/geografia/paises?q=${encodeURIComponent(q)}` : '/api/geografia/paises';
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+      document.getElementById('paisesTableBody').innerHTML = data.map(p => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-500">${p.ID_Pais}</td>
+          <td class="px-4 py-3 text-sm font-medium text-gray-900">${p.Nombre_Pais}</td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="editarPais(${p.ID_Pais})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3">Editar</button>
+            <button onclick="eliminarPais(${p.ID_Pais})" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('paisesLoading').classList.add('hidden');
+    }
+
+    function abrirFormPais(data = null) {
+      editPaisId = data ? data.ID_Pais : null;
+      document.getElementById('modalPaisTitle').textContent = data ? 'Editar País' : 'Nuevo País';
+      document.getElementById('paisNombre').value = data ? data.Nombre_Pais : '';
+      abrirModal('modalPais');
+    }
+
+    async function guardarPais() {
+      const body = { Nombre_Pais: document.getElementById('paisNombre').value };
+      const url = editPaisId ? `/api/geografia/paises/${editPaisId}` : '/api/geografia/paises';
+      const res = await fetch(url, {
+        method: editPaisId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { alert('Error al guardar'); return; }
+      cerrarModal('modalPais');
+      editPaisId = null;
+      cargarPaises(document.getElementById('searchPaises').value);
+      cargarSelectsPaises();
+    }
+
+    async function editarPais(id) {
+      const res = await fetch(`/api/geografia/paises/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      abrirFormPais(await res.json());
+    }
+
+    async function eliminarPais(id) {
+      if (!confirm('¿Eliminar este país?')) return;
+      const res = await fetch(`/api/geografia/paises/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { alert('Error al eliminar'); return; }
+      cargarPaises(document.getElementById('searchPaises').value);
+      cargarSelectsPaises();
+    }
+
+    document.getElementById('searchPaises').addEventListener('input', e => cargarPaises(e.target.value));
+
+    // --- Estados ---
+    async function cargarEstados(q = '') {
+      const url = q ? `/api/geografia/estados?q=${encodeURIComponent(q)}` : '/api/geografia/estados';
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+      document.getElementById('estadosTableBody').innerHTML = data.map(e => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-500">${e.ID_Estado}</td>
+          <td class="px-4 py-3 text-sm font-medium text-gray-900">${e.Nombre_Estado}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${e.Pais_Nombre}</td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="editarEstado(${e.ID_Estado})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3">Editar</button>
+            <button onclick="eliminarEstado(${e.ID_Estado})" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('estadosLoading').classList.add('hidden');
+    }
+
+    function abrirFormEstado(data = null) {
+      editEstadoId = data ? data.ID_Estado : null;
+      document.getElementById('modalEstadoTitle').textContent = data ? 'Editar Estado' : 'Nuevo Estado';
+      document.getElementById('estadoNombre').value = data ? data.Nombre_Estado : '';
+      document.getElementById('estadoPais').value = data ? data.ID_Pais : '';
+      abrirModal('modalEstado');
+    }
+
+    async function guardarEstado() {
+      const body = {
+        Nombre_Estado: document.getElementById('estadoNombre').value,
+        ID_Pais: parseInt(document.getElementById('estadoPais').value),
+      };
+      const url = editEstadoId ? `/api/geografia/estados/${editEstadoId}` : '/api/geografia/estados';
+      const res = await fetch(url, {
+        method: editEstadoId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { alert('Error al guardar'); return; }
+      cerrarModal('modalEstado');
+      editEstadoId = null;
+      cargarEstados(document.getElementById('searchEstados').value);
+      cargarSelectsEstados();
+    }
+
+    async function editarEstado(id) {
+      const res = await fetch(`/api/geografia/estados/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      abrirFormEstado(await res.json());
+    }
+
+    async function eliminarEstado(id) {
+      if (!confirm('¿Eliminar este estado?')) return;
+      const res = await fetch(`/api/geografia/estados/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { alert('Error al eliminar'); return; }
+      cargarEstados(document.getElementById('searchEstados').value);
+      cargarSelectsEstados();
+    }
+
+    document.getElementById('searchEstados').addEventListener('input', e => cargarEstados(e.target.value));
+
+    // --- Municipios ---
+    async function cargarMunicipios(q = '') {
+      const url = q ? `/api/geografia/municipios?q=${encodeURIComponent(q)}` : '/api/geografia/municipios';
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+      document.getElementById('municipiosTableBody').innerHTML = data.map(m => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-500">${m.ID_Municipio}</td>
+          <td class="px-4 py-3 text-sm font-medium text-gray-900">${m.Nombre_Municipio}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${m.Estado_Nombre}</td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="editarMunicipio(${m.ID_Municipio})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3">Editar</button>
+            <button onclick="eliminarMunicipio(${m.ID_Municipio})" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('municipiosLoading').classList.add('hidden');
+    }
+
+    function abrirFormMunicipio(data = null) {
+      editMunicipioId = data ? data.ID_Municipio : null;
+      document.getElementById('modalMunicipioTitle').textContent = data ? 'Editar Municipio' : 'Nuevo Municipio';
+      document.getElementById('municipioNombre').value = data ? data.Nombre_Municipio : '';
+      if (data) {
+        document.getElementById('municipioEstado').value = data.ID_Estado;
+      }
+      abrirModal('modalMunicipio');
+    }
+
+    document.getElementById('municipioPais').addEventListener('change', async function() {
+      if (!this.value) return;
+      const estados = await (await fetch(`/api/catalogos/estados?pais_id=${this.value}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      const sel = document.getElementById('municipioEstado');
+      sel.innerHTML = '<option value="">Seleccione estado</option>' + estados.map(e => `<option value="${e.value}">${e.label}</option>`).join('');
+    });
+
+    async function guardarMunicipio() {
+      const body = {
+        Nombre_Municipio: document.getElementById('municipioNombre').value,
+        ID_Estado: parseInt(document.getElementById('municipioEstado').value),
+      };
+      const url = editMunicipioId ? `/api/geografia/municipios/${editMunicipioId}` : '/api/geografia/municipios';
+      const res = await fetch(url, {
+        method: editMunicipioId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { alert('Error al guardar'); return; }
+      cerrarModal('modalMunicipio');
+      editMunicipioId = null;
+      cargarMunicipios(document.getElementById('searchMunicipios').value);
+    }
+
+    async function editarMunicipio(id) {
+      const res = await fetch(`/api/geografia/municipios/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      const data = await res.json();
+      abrirFormMunicipio(data);
+      const paisRow = await (await fetch(`/api/geografia/estados/${data.ID_Estado}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      document.getElementById('municipioPais').value = paisRow.ID_Pais;
+      const evt = new Event('change');
+      document.getElementById('municipioPais').dispatchEvent(evt);
+      setTimeout(() => document.getElementById('municipioEstado').value = data.ID_Estado, 300);
+    }
+
+    async function eliminarMunicipio(id) {
+      if (!confirm('¿Eliminar este municipio?')) return;
+      const res = await fetch(`/api/geografia/municipios/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { alert('Error al eliminar'); return; }
+      cargarMunicipios(document.getElementById('searchMunicipios').value);
+    }
+
+    document.getElementById('searchMunicipios').addEventListener('input', e => cargarMunicipios(e.target.value));
+
+    // --- Ciudades ---
+    async function cargarCiudades(q = '') {
+      const url = q ? `/api/geografia/ciudades?q=${encodeURIComponent(q)}` : '/api/geografia/ciudades';
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+      document.getElementById('ciudadesTableBody').innerHTML = data.map(c => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-500">${c.ID_Ciudad}</td>
+          <td class="px-4 py-3 text-sm font-medium text-gray-900">${c.Nombre_Ciudad}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${c.Estado_Nombre}</td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="editarCiudad(${c.ID_Ciudad})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3">Editar</button>
+            <button onclick="eliminarCiudad(${c.ID_Ciudad})" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('ciudadesLoading').classList.add('hidden');
+    }
+
+    function abrirFormCiudad(data = null) {
+      editCiudadId = data ? data.ID_Ciudad : null;
+      document.getElementById('modalCiudadTitle').textContent = data ? 'Editar Ciudad' : 'Nueva Ciudad';
+      document.getElementById('ciudadNombre').value = data ? data.Nombre_Ciudad : '';
+      if (data) document.getElementById('ciudadEstado').value = data.ID_Estado;
+      abrirModal('modalCiudad');
+    }
+
+    document.getElementById('ciudadPais').addEventListener('change', async function() {
+      if (!this.value) return;
+      const estados = await (await fetch(`/api/catalogos/estados?pais_id=${this.value}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      const sel = document.getElementById('ciudadEstado');
+      sel.innerHTML = '<option value="">Seleccione estado</option>' + estados.map(e => `<option value="${e.value}">${e.label}</option>`).join('');
+    });
+
+    async function guardarCiudad() {
+      const body = {
+        Nombre_Ciudad: document.getElementById('ciudadNombre').value,
+        ID_Estado: parseInt(document.getElementById('ciudadEstado').value),
+      };
+      const url = editCiudadId ? `/api/geografia/ciudades/${editCiudadId}` : '/api/geografia/ciudades';
+      const res = await fetch(url, {
+        method: editCiudadId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { alert('Error al guardar'); return; }
+      cerrarModal('modalCiudad');
+      editCiudadId = null;
+      cargarCiudades(document.getElementById('searchCiudades').value);
+    }
+
+    async function editarCiudad(id) {
+      const res = await fetch(`/api/geografia/ciudades/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      const data = await res.json();
+      abrirFormCiudad(data);
+      const paisRow = await (await fetch(`/api/geografia/estados/${data.ID_Estado}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      document.getElementById('ciudadPais').value = paisRow.ID_Pais;
+      const evt = new Event('change');
+      document.getElementById('ciudadPais').dispatchEvent(evt);
+      setTimeout(() => document.getElementById('ciudadEstado').value = data.ID_Estado, 300);
+    }
+
+    async function eliminarCiudad(id) {
+      if (!confirm('¿Eliminar esta ciudad?')) return;
+      const res = await fetch(`/api/geografia/ciudades/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { alert('Error al eliminar'); return; }
+      cargarCiudades(document.getElementById('searchCiudades').value);
+    }
+
+    document.getElementById('searchCiudades').addEventListener('input', e => cargarCiudades(e.target.value));
+
+    // --- Parroquias ---
+    async function cargarParroquias(q = '') {
+      const url = q ? `/api/geografia/parroquias?q=${encodeURIComponent(q)}` : '/api/geografia/parroquias';
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+      document.getElementById('parroquiasTableBody').innerHTML = data.map(p => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-500">${p.ID_Parroquia}</td>
+          <td class="px-4 py-3 text-sm font-medium text-gray-900">${p.Nombre_Parroquia}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${p.Municipio_Nombre}</td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="editarParroquia(${p.ID_Parroquia})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3">Editar</button>
+            <button onclick="eliminarParroquia(${p.ID_Parroquia})" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('parroquiasLoading').classList.add('hidden');
+    }
+
+    function abrirFormParroquia(data = null) {
+      editParroquiaId = data ? data.ID_Parroquia : null;
+      document.getElementById('modalParroquiaTitle').textContent = data ? 'Editar Parroquia' : 'Nueva Parroquia';
+      document.getElementById('parroquiaNombre').value = data ? data.Nombre_Parroquia : '';
+      if (data) document.getElementById('parroquiaMunicipio').value = data.ID_Municipio;
+      abrirModal('modalParroquia');
+    }
+
+    document.getElementById('parroquiaPais').addEventListener('change', async function() {
+      if (!this.value) return;
+      const estados = await (await fetch(`/api/catalogos/estados?pais_id=${this.value}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      const sel = document.getElementById('parroquiaEstado');
+      sel.innerHTML = '<option value="">Seleccione estado</option>' + estados.map(e => `<option value="${e.value}">${e.label}</option>`).join('');
+    });
+
+    document.getElementById('parroquiaEstado').addEventListener('change', async function() {
+      if (!this.value) return;
+      const municipios = await (await fetch(`/api/catalogos/municipios?estado_id=${this.value}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      const sel = document.getElementById('parroquiaMunicipio');
+      sel.innerHTML = '<option value="">Seleccione municipio</option>' + municipios.map(m => `<option value="${m.value}">${m.label}</option>`).join('');
+    });
+
+    async function guardarParroquia() {
+      const body = {
+        Nombre_Parroquia: document.getElementById('parroquiaNombre').value,
+        ID_Municipio: parseInt(document.getElementById('parroquiaMunicipio').value),
+      };
+      const url = editParroquiaId ? `/api/geografia/parroquias/${editParroquiaId}` : '/api/geografia/parroquias';
+      const res = await fetch(url, {
+        method: editParroquiaId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { alert('Error al guardar'); return; }
+      cerrarModal('modalParroquia');
+      editParroquiaId = null;
+      cargarParroquias(document.getElementById('searchParroquias').value);
+    }
+
+    async function editarParroquia(id) {
+      const res = await fetch(`/api/geografia/parroquias/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      const data = await res.json();
+      abrirFormParroquia(data);
+      const munRow = await (await fetch(`/api/geografia/municipios/${data.ID_Municipio}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      const estRow = await (await fetch(`/api/geografia/estados/${munRow.ID_Estado}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      document.getElementById('parroquiaPais').value = estRow.ID_Pais;
+      let evt = new Event('change');
+      document.getElementById('parroquiaPais').dispatchEvent(evt);
+      setTimeout(() => {
+        document.getElementById('parroquiaEstado').value = munRow.ID_Estado;
+        const evt2 = new Event('change');
+        document.getElementById('parroquiaEstado').dispatchEvent(evt2);
+      }, 300);
+      setTimeout(() => document.getElementById('parroquiaMunicipio').value = data.ID_Municipio, 600);
+    }
+
+    async function eliminarParroquia(id) {
+      if (!confirm('¿Eliminar esta parroquia?')) return;
+      const res = await fetch(`/api/geografia/parroquias/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { alert('Error al eliminar'); return; }
+      cargarParroquias(document.getElementById('searchParroquias').value);
+    }
+
+    document.getElementById('searchParroquias').addEventListener('input', e => cargarParroquias(e.target.value));
+
+    // --- Shared select population ---
+    async function cargarSelectsPaises() {
+      const paises = await (await fetch('/api/catalogos/paises', { headers: { Authorization: `Bearer ${token}` } })).json();
+      const selects = ['estadoPais', 'municipioPais', 'ciudadPais', 'parroquiaPais'];
+      selects.forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) sel.innerHTML = '<option value="">Seleccione país</option>' + paises.map(p => `<option value="${p.value}">${p.label}</option>`).join('');
+      });
+    }
+
+    async function cargarSelectsEstados() {
+      const paisId = document.getElementById('municipioPais').value || document.getElementById('estadoPais').value;
+      if (!paisId) return;
+      const estados = await (await fetch(`/api/catalogos/estados?pais_id=${paisId}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      const selects = ['municipioEstado', 'ciudadEstado'];
+      selects.forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) sel.innerHTML = '<option value="">Seleccione estado</option>' + estados.map(e => `<option value="${e.value}">${e.label}</option>`).join('');
+      });
+    }
+
+    // --- Init ---
+    cargarPaises();
+    cargarEstados();
+    cargarMunicipios();
+    cargarCiudades();
+    cargarParroquias();
+    cargarSelectsPaises();
+  </script>
+</body>
+</html>

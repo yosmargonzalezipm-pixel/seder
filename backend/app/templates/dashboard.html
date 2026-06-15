@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio - SEDER</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="flex min-h-screen">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="w-60 bg-indigo-950 text-white flex flex-col flex-shrink-0 fixed h-screen z-30">
+      <!-- Logo -->
+      <div class="flex items-center gap-3 px-5 py-4 border-b border-white/10">
+        <div class="w-9 h-9 rounded-lg bg-white text-indigo-950 flex items-center justify-center font-bold text-lg flex-shrink-0">S</div>
+        <div>
+          <div class="font-bold text-sm">SEDER</div>
+          <div class="text-[10px] text-indigo-300 leading-tight">Sistema de registro - Iglesia Dios es Amor, Tipuro.</div>
+        </div>
+      </div>
+
+      <!-- User info -->
+      <div class="px-5 py-3 border-b border-white/10">
+        <div class="text-sm font-medium" id="sidebarUser">Admin</div>
+        <div class="text-[11px] text-indigo-300" id="sidebarRol">Administrador</div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6" id="sidebarNav">
+        <!-- Groups rendered by JS -->
+      </nav>
+
+      <!-- Logout -->
+      <div class="px-3 py-3 border-t border-white/10">
+        <button onclick="logout()" class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-red-300 hover:text-red-200 hover:bg-white/5 transition text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Cerrar Sesión
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="flex-1 ml-60 p-6 lg:p-8 overflow-y-auto">
+
+      <!-- Welcome row -->
+      <div class="flex flex-col lg:flex-row gap-6 mb-8">
+        <div class="flex-1">
+          <h1 class="text-2xl font-bold text-gray-900" id="welcomeTitle">Bienvenido, Admin</h1>
+          <p class="text-gray-500 mt-1">Sistema de registro - Iglesia Dios es Amor, Tipuro.</p>
+          <div class="flex flex-wrap gap-3 mt-4">
+            <button id="toggleStats" onclick="alternarStats()" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 border border-indigo-200 transition text-sm font-medium">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              Estadísticas
+            </button>
+            <button id="toggleReports" onclick="alternarReportes()" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 border border-emerald-200 transition text-sm font-medium">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Reportes
+            </button>
+          </div>
+        </div>
+        <!-- Texto: Dios es Amor -->
+        <div class="flex-shrink-0 bg-gradient-to-br from-indigo-50 to-amber-50 rounded-2xl border border-indigo-100 px-6 py-4 text-center flex flex-col items-center justify-center shadow-sm" style="width:200px; height:110px;">
+          <div class="text-lg font-bold text-indigo-700 font-serif">Dios es Amor</div>
+          <div class="text-xs text-indigo-400 mt-1 font-serif">1 Juan 4:8</div>
+        </div>
+      </div>
+
+      <!-- ===== STATS SECTION (hidden by default) ===== -->
+      <div id="statsSection" class="hidden mb-8">
+        <div id="statsRow" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
+            <h3 class="text-xs font-semibold text-gray-900 mb-2">Miembros por Sexo</h3>
+            <canvas id="chartSexo" height="120"></canvas>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
+            <h3 class="text-xs font-semibold text-gray-900 mb-2">Miembros por Estado</h3>
+            <canvas id="chartEstado" height="120"></canvas>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
+            <h3 class="text-xs font-semibold text-gray-900 mb-2">Inventario por Estado</h3>
+            <canvas id="chartInvEstado" height="120"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== REPORTS SECTION (hidden by default) ===== -->
+      <div id="reportsSection" class="hidden mb-8">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="font-semibold text-gray-900 mb-4">Reportes</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Miembros -->
+            <div class="border border-gray-200 rounded-xl p-4">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-lg">👥</div>
+                <div>
+                  <p class="font-semibold text-gray-900 text-sm">Miembros</p>
+                  <p class="text-xs text-gray-400">Vista previa y descarga</p>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="abrirPreview('miembros')" class="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 border border-indigo-200 transition text-sm font-medium">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  Vista Previa
+                </button>
+                <button onclick="descargarReporte('miembros', 'excel')" class="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 border border-green-200 transition text-sm font-medium">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  Excel
+                </button>
+                <button onclick="descargarReporte('miembros', 'pdf')" class="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 border border-red-200 transition text-sm font-medium">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                  PDF
+                </button>
+              </div>
+            </div>
+            <!-- Inventario -->
+            <div class="border border-gray-200 rounded-xl p-4">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center text-lg">📦</div>
+                <div>
+                  <p class="font-semibold text-gray-900 text-sm">Inventario</p>
+                  <p class="text-xs text-gray-400">Vista previa y descarga</p>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="abrirPreview('inventario')" class="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 border border-indigo-200 transition text-sm font-medium">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  Vista Previa
+                </button>
+                <button onclick="descargarReporte('inventario', 'excel')" class="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 border border-green-200 transition text-sm font-medium">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  Excel
+                </button>
+                <button onclick="descargarReporte('inventario', 'pdf')" class="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 border border-red-200 transition text-sm font-medium">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                  PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PREVIEW MODAL ===== -->
+      <div id="previewModal" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+        <div class="bg-white rounded-2xl w-full max-w-5xl mx-4 max-h-[85vh] flex flex-col">
+          <div class="p-5 border-b flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-10">
+            <h3 id="previewModalTitle" class="text-lg font-bold text-gray-900">Vista Previa</h3>
+            <button onclick="cerrarPreview()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <div id="previewContent" class="p-5 overflow-x-auto flex-1">
+            <div class="text-center py-8 text-gray-400">Cargando...</div>
+          </div>
+          <div id="previewFooter" class="p-5 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl hidden">
+            <button onclick="cerrarPreview()" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition">Cerrar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MODULES GRID ===== -->
+      <div>
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Módulos</h3>
+        <div id="modulosGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/';
+
+    const usuario = localStorage.getItem('usuario') || 'Usuario';
+    const nombreCompleto = localStorage.getItem('nombre_completo') || usuario;
+    const rol = localStorage.getItem('rol') || '';
+
+    document.getElementById('sidebarUser').textContent = nombreCompleto;
+    document.getElementById('sidebarRol').textContent = rol;
+    document.getElementById('welcomeTitle').textContent = `Bienvenido, ${nombreCompleto}`;
+
+    let statsData = null;
+    let statsInitialized = false;
+    let statsVisible = false;
+    let reportsVisible = false;
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/';
+    }
+
+    // --- Module definitions ---
+    const ALL_MODULES = {
+      miembros:     { icon: '👤', label: 'Miembros',       url: '/miembros',     grupo: 'Personas' },
+      familias:     { icon: '👪', label: 'Familias',       url: '/familias',     grupo: 'Personas' },
+      profesiones:  { icon: '💼', label: 'Profesiones',    url: '/profesiones',  grupo: 'Personas' },
+      roles_eclesiasticos: { icon: '🎖️', label: 'Roles Ecle.', url: '/roles-eclesiasticos', grupo: 'Personas' },
+      ministerios:   { icon: '🎵', label: 'Ministerios',  url: '/ministerios',  grupo: 'Personas' },
+      asistencia:   { icon: '✅', label: 'Asistencia',    url: '/asistencia',   grupo: 'Registro' },
+      inventario:   { icon: '📦', label: 'Inventario',    url: '/inventario',   grupo: 'Registro' },
+      resguardos:   { icon: '📋', label: 'Resguardos',    url: '/resguardos',   grupo: 'Registro' },
+      categorias:   { icon: '📂', label: 'Categorías',    url: '/categorias',   grupo: 'Registro' },
+      usuarios:     { icon: '🔐', label: 'Usuarios',      url: '/usuarios',     grupo: 'Administración' },
+      roles:        { icon: '🔧', label: 'Roles',         url: '/roles',        grupo: 'Administración' },
+      iglesias:     { icon: '⛪', label: 'Iglesias',      url: '/iglesias',     grupo: 'Administración' },
+      geografia:    { icon: '🌍', label: 'Geografía',    url: '/geografia',    grupo: 'Administración' },
+      auditoria:    { icon: '📋', label: 'Auditoría',     url: '/auditoria',    grupo: 'Administración' },
+      csv:          { icon: '📄', label: 'Carga CSV',     url: '/csv',          grupo: 'Herramientas' },
+    };
+
+    const GRUPOS_ORDER = ['Personas', 'Registro', 'Administración', 'Herramientas'];
+    const GRUPO_ICONS = {
+      Personas: '👥',
+      Registro: '📋',
+      Administración: '⚙️',
+      Herramientas: '🛠️',
+    };
+
+    // --- Fetch permissions ---
+    async function cargarPermisos() {
+      const res = await fetch('/api/auth/permisos', { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { logout(); return []; }
+      const permisos = await res.json();
+      return permisos.map(p => p.Nombre_Permiso);
+    }
+
+    // --- Render sidebar ---
+    function renderSidebar(permisos) {
+      const nav = document.getElementById('sidebarNav');
+      nav.innerHTML = '';
+      for (const grupo of GRUPOS_ORDER) {
+        const mods = Object.entries(ALL_MODULES).filter(([key, m]) =>
+          m.grupo === grupo && permisos.some(p => p.startsWith(key))
+        );
+        if (mods.length === 0) continue;
+
+        let html = `<div><div class="flex items-center gap-2 px-2 mb-2">
+          <span class="text-[10px] uppercase tracking-wider text-indigo-300 font-semibold">${GRUPO_ICONS[grupo] || ''} ${grupo}</span>
+        </div><div class="space-y-0.5">`;
+        for (const [key, m] of mods) {
+          html += `<a href="${m.url}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-indigo-200 hover:text-white hover:bg-white/10 transition text-sm">
+            <span class="text-base flex-shrink-0">${m.icon}</span> ${m.label}
+          </a>`;
+        }
+        html += '</div></div>';
+        nav.innerHTML += html;
+      }
+    }
+
+    // --- Render modules grid ---
+    function renderModulos(permisos) {
+      const grid = document.getElementById('modulosGrid');
+      grid.innerHTML = '';
+      for (const [key, m] of Object.entries(ALL_MODULES)) {
+        if (!permisos.some(p => p.startsWith(key))) continue;
+        grid.innerHTML += `<div onclick="location.href='${m.url}'" class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md hover:border-indigo-200 transition cursor-pointer text-center">
+          <div class="text-3xl mb-2">${m.icon}</div>
+          <div class="font-semibold text-gray-900 text-sm">${m.label}</div>
+          <div class="text-xs text-gray-400 mt-0.5">${m.grupo}</div>
+        </div>`;
+      }
+    }
+
+    // --- Stats toggle ---
+    async function alternarStats() {
+      statsVisible = !statsVisible;
+      const section = document.getElementById('statsSection');
+      section.classList.toggle('hidden', !statsVisible);
+      document.getElementById('toggleStats').classList.toggle('bg-indigo-100', statsVisible);
+
+      if (statsVisible && !statsInitialized) {
+        await cargarStats();
+        statsInitialized = true;
+      }
+    }
+
+    async function cargarStats() {
+      const res = await fetch('/api/dashboard/stats', { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      statsData = await res.json();
+      renderStatsCards(statsData);
+      renderCharts(statsData);
+    }
+
+    function renderStatsCards(data) {
+      const row = document.getElementById('statsRow');
+      const cards = [
+        { label: 'Miembros', value: data.miembros.total, color: 'bg-indigo-500' },
+        { label: 'Familias', value: data.familias.total, color: 'bg-purple-500' },
+        { label: 'Iglesias', value: data.iglesias.total, color: 'bg-amber-500' },
+        { label: 'Grupos', value: data.grupos.total, color: 'bg-cyan-500' },
+        { label: 'Artículos', value: data.inventario.total_articulos, color: 'bg-green-500' },
+        { label: 'Asistencias', value: data.asistencia.total, color: 'bg-blue-500' },
+      ];
+      row.innerHTML = cards.map(c => `
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex items-center gap-3">
+          <div class="w-11 h-11 ${c.color} rounded-lg flex items-center justify-center text-white text-lg font-bold flex-shrink-0">${c.value}</div>
+          <div>
+            <p class="text-xs text-gray-500">${c.label}</p>
+            <p class="text-lg font-bold text-gray-900">${c.value}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    let charts = [];
+    function renderCharts(data) {
+      charts.forEach(c => c.destroy());
+      charts = [];
+      const colores = ['#6366F1', '#EC4899', '#F59E0B', '#10B981', '#EF4444'];
+
+      charts.push(new Chart(document.getElementById('chartSexo'), {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(data.miembros.por_sexo),
+          datasets: [{ data: Object.values(data.miembros.por_sexo), backgroundColor: colores }]
+        }
+      }));
+
+      charts.push(new Chart(document.getElementById('chartEstado'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(data.miembros.por_estado),
+          datasets: [{ label: 'Miembros', data: Object.values(data.miembros.por_estado), backgroundColor: colores }]
+        },
+        options: { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+      }));
+
+      charts.push(new Chart(document.getElementById('chartInvEstado'), {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(data.inventario.por_estado),
+          datasets: [{ data: Object.values(data.inventario.por_estado), backgroundColor: colores }]
+        }
+      }));
+    }
+
+    // --- Reports toggle ---
+    function alternarReportes() {
+      reportsVisible = !reportsVisible;
+      document.getElementById('reportsSection').classList.toggle('hidden', !reportsVisible);
+      document.getElementById('toggleReports').classList.toggle('bg-emerald-100', reportsVisible);
+    }
+
+    // --- Report preview & download ---
+    async function abrirPreview(tipo) {
+      const modal = document.getElementById('previewModal');
+      const title = document.getElementById('previewModalTitle');
+      const content = document.getElementById('previewContent');
+      const footer = document.getElementById('previewFooter');
+      title.textContent = tipo === 'miembros' ? '👥 Vista Previa - Miembros' : '📦 Vista Previa - Inventario';
+      content.innerHTML = '<div class="text-center py-8 text-gray-400">Cargando...</div>';
+      footer.classList.add('hidden');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      const res = await fetch(`/api/reportes/${tipo}/preview`, { headers: { 'Authorization': `Bearer ${token}` } });
+      if (!res.ok) {
+        content.innerHTML = '<div class="text-center py-8 text-red-400">Error al cargar vista previa</div>';
+        footer.classList.remove('hidden');
+        return;
+      }
+      const data = await res.json();
+      if (data.length === 0) {
+        content.innerHTML = '<div class="text-center py-8 text-gray-400">No hay datos para mostrar</div>';
+        footer.classList.remove('hidden');
+        return;
+      }
+
+      let table;
+      if (tipo === 'miembros') {
+        table = `<table class="w-full text-sm"><thead class="bg-gray-50 border-b"><tr>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Nombres</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Apellidos</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Email</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Teléfono</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Sexo</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Estado</th>
+        </tr></thead><tbody class="divide-y divide-gray-100">${
+          data.map(m => `<tr class="hover:bg-gray-50">
+            <td class="px-3 py-2 text-gray-900">${m.Nombres}</td>
+            <td class="px-3 py-2 text-gray-600">${m.Apellidos}</td>
+            <td class="px-3 py-2 text-gray-600">${m.Email || '-'}</td>
+            <td class="px-3 py-2 text-gray-600">${m.Telefono || '-'}</td>
+            <td class="px-3 py-2 text-gray-600">${m.Sexo || '-'}</td>
+            <td class="px-3 py-2"><span class="px-2 py-0.5 text-xs rounded-full ${m.Estado === 'Activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${m.Estado || '-'}</span></td>
+          </tr>`).join('')
+        }</tbody></table>
+        <p class="text-xs text-gray-400 mt-3">Mostrando los últimos ${data.length} registros</p>`;
+      } else {
+        table = `<table class="w-full text-sm"><thead class="bg-gray-50 border-b"><tr>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Artículo</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Marca</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Modelo</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Categoría</th>
+          <th class="px-3 py-2 text-center text-xs font-semibold text-gray-500 uppercase">Cant.</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Estado</th>
+        </tr></thead><tbody class="divide-y divide-gray-100">${
+          data.map(a => `<tr class="hover:bg-gray-50">
+            <td class="px-3 py-2 text-gray-900">${a.Nombre_Articulo}</td>
+            <td class="px-3 py-2 text-gray-600">${a.Marca || '-'}</td>
+            <td class="px-3 py-2 text-gray-600">${a.Modelo || '-'}</td>
+            <td class="px-3 py-2 text-gray-600">${a.Categoria || '-'}</td>
+            <td class="px-3 py-2 text-center font-semibold">${a.Cantidad}</td>
+            <td class="px-3 py-2"><span class="px-2 py-0.5 text-xs rounded-full ${a.Estado_Articulo === 'Excelente' ? 'bg-green-100 text-green-700' : a.Estado_Articulo === 'Bueno' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}">${a.Estado_Articulo}</span></td>
+          </tr>`).join('')
+        }</tbody></table>
+        <p class="text-xs text-gray-400 mt-3">Mostrando los últimos ${data.length} registros</p>`;
+      }
+      content.innerHTML = table;
+      footer.classList.remove('hidden');
+    }
+
+    function cerrarPreview() {
+      document.getElementById('previewModal').classList.add('hidden');
+      document.getElementById('previewModal').classList.remove('flex');
+    }
+
+    function descargarReporte(tipo, formato) {
+      const url = `/api/reportes/${tipo}/${formato}`;
+      fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => {
+          if (!r.ok) throw new Error('Error');
+          return r.blob();
+        })
+        .then(blob => {
+          const blobUrl = URL.createObjectURL(blob);
+          if (formato === 'pdf') {
+            window.open(blobUrl, '_blank');
+          } else {
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `${tipo}.xlsx`;
+            link.click();
+            URL.revokeObjectURL(blobUrl);
+          }
+        })
+        .catch(() => alert('Error al descargar'));
+    }
+
+    // --- Init ---
+    (async function init() {
+      const permisos = await cargarPermisos();
+      renderSidebar(permisos);
+      renderModulos(permisos);
+    })();
+  </script>
+</body>
+</html>

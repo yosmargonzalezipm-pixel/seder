@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iglesias - SEDER</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex items-center gap-3">
+          <a href="/dashboard" class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center hover:bg-indigo-700">
+            <span class="text-white font-bold text-lg">S</span>
+          </a>
+          <div>
+            <h1 class="text-lg font-bold text-gray-900">Iglesias</h1>
+            <p class="text-xs text-gray-500">Gestión de iglesias y sedes</p>
+          </div>
+        </div>
+        <button onclick="logout()" class="px-4 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition">Cerrar Sesión</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex gap-3 flex-1 max-w-md">
+        <input type="text" id="searchInput" placeholder="Buscar iglesia..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+      </div>
+      <button onclick="abrirFormulario()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">+ Nueva Iglesia</button>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Iglesia Madre</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Dirección</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Tel. Móvil</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Tel. Fijo</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Correo</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Ciudad</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Parroquia</th>
+              <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="iglesiasTableBody" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+      <div id="tableLoading" class="text-center py-8 text-gray-400">Cargando...</div>
+    </div>
+  </main>
+
+  <div id="modal" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+    <div class="bg-white rounded-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b">
+        <h3 id="modalTitle" class="text-lg font-bold text-gray-900">Nueva Iglesia</h3>
+      </div>
+      <form id="iglesiaForm" class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+            <input type="text" id="Nombre_Iglesia" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Dirección *</label>
+            <textarea id="Direccion" required rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono Móvil</label>
+            <input type="text" id="Telefono_Iglesia_movil" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono Fijo</label>
+            <input type="text" id="Telefono_fijo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Correo</label>
+            <input type="email" id="Correo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Iglesia Madre</label>
+            <select id="ID_Iglesia_Madre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+              <option value="">-- Ninguna --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">País</label>
+            <select id="ID_Pais" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+              <option value="">Seleccione país</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+            <select id="ID_Estado" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"></select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ciudad *</label>
+            <select id="ID_Ciudad" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"></select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
+            <select id="ID_Municipio" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"></select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Parroquia *</label>
+            <select id="ID_Parroquia" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"></select>
+          </div>
+        </div>
+      </form>
+      <div class="p-6 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+        <button onclick="cerrarModal()" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+        <button onclick="guardarIglesia()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/';
+    let editandoId = null;
+
+    function logout() { localStorage.clear(); window.location.href = '/'; }
+
+    async function cargarIglesias(q = '') {
+      const url = q ? `/api/iglesias?q=${encodeURIComponent(q)}` : '/api/iglesias';
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+      document.getElementById('iglesiasTableBody').innerHTML = data.map(i => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm font-medium text-gray-900">${i.Nombre_Iglesia}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${i.Iglesia_Madre_Nombre || '-'}</td>
+          <td class="px-4 py-3 text-sm text-gray-600 max-w-[200px] truncate" title="${i.Direccion || ''}">${i.Direccion ? i.Direccion.substring(0, 60) + (i.Direccion.length > 60 ? '...' : '') : '-'}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${i.Telefono_Iglesia_movil || '-'}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${i.Telefono_fijo || '-'}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${i.Correo || '-'}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${i.Ciudad_Nombre}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${i.Parroquia_Nombre}</td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="editarIglesia(${i.ID_Iglesia})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3">Editar</button>
+            <button onclick="eliminarIglesia(${i.ID_Iglesia})" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('tableLoading').classList.add('hidden');
+    }
+
+    async function cargarSelects() {
+      const paises = await (await fetch('/api/catalogos/paises', { headers: { Authorization: `Bearer ${token}` } })).json();
+      const selPais = document.getElementById('ID_Pais');
+      selPais.innerHTML = '<option value="">Seleccione país</option>' + paises.map(p => `<option value="${p.value}">${p.label}</option>`).join('');
+
+      const iglesias = await (await fetch('/api/iglesias', { headers: { Authorization: `Bearer ${token}` } })).json();
+      const selMadre = document.getElementById('ID_Iglesia_Madre');
+      selMadre.innerHTML = '<option value="">-- Ninguna --</option>' + iglesias.map(i => `<option value="${i.ID_Iglesia}">${i.Nombre_Iglesia}</option>`).join('');
+    }
+
+    document.getElementById('ID_Pais').addEventListener('change', async function() {
+      if (!this.value) return;
+      const estados = await (await fetch(`/api/catalogos/estados?pais_id=${this.value}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      const sel = document.getElementById('ID_Estado');
+      sel.innerHTML = '<option value="">Seleccione estado</option>' + estados.map(e => `<option value="${e.value}">${e.label}</option>`).join('');
+    });
+
+    document.getElementById('ID_Estado').addEventListener('change', async function() {
+      if (!this.value) return;
+      const [municipios, ciudades] = await Promise.all([
+        (await fetch(`/api/catalogos/municipios?estado_id=${this.value}`, { headers: { Authorization: `Bearer ${token}` } })).json(),
+        (await fetch(`/api/catalogos/ciudades?estado_id=${this.value}`, { headers: { Authorization: `Bearer ${token}` } })).json(),
+      ]);
+      const selMun = document.getElementById('ID_Municipio');
+      selMun.innerHTML = '<option value="">Seleccione municipio</option>' + municipios.map(m => `<option value="${m.value}">${m.label}</option>`).join('');
+      const selCiu = document.getElementById('ID_Ciudad');
+      selCiu.innerHTML = '<option value="">Seleccione ciudad</option>' + ciudades.map(c => `<option value="${c.value}">${c.label}</option>`).join('');
+    });
+
+    document.getElementById('ID_Municipio').addEventListener('change', async function() {
+      if (!this.value) return;
+      const parroquias = await (await fetch(`/api/catalogos/parroquias?municipio_id=${this.value}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      const sel = document.getElementById('ID_Parroquia');
+      sel.innerHTML = '<option value="">Seleccione parroquia</option>' + parroquias.map(p => `<option value="${p.value}">${p.label}</option>`).join('');
+    });
+
+    async function cargarCatalogosIgl() {
+      const res = await fetch('/api/catalogos/iglesias', { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      const iglesias = await res.json();
+      const selMadre = document.getElementById('ID_Iglesia_Madre');
+      const currentMadre = selMadre.value;
+      selMadre.innerHTML = '<option value="">-- Ninguna --</option>' + iglesias.map(i => `<option value="${i.value}">${i.label}</option>`).join('');
+      selMadre.value = currentMadre;
+    }
+
+    function abrirFormulario(data = null) {
+      editandoId = data ? data.ID_Iglesia : null;
+      document.getElementById('modalTitle').textContent = data ? 'Editar Iglesia' : 'Nueva Iglesia';
+      document.getElementById('Nombre_Iglesia').value = data ? data.Nombre_Iglesia : '';
+      document.getElementById('Direccion').value = data ? (data.Direccion || '') : '';
+      document.getElementById('Telefono_Iglesia_movil').value = data ? (data.Telefono_Iglesia_movil || '') : '';
+      document.getElementById('Telefono_fijo').value = data ? (data.Telefono_fijo || '') : '';
+      document.getElementById('Correo').value = data ? (data.Correo || '') : '';
+      document.getElementById('ID_Iglesia_Madre').value = data ? (data.ID_Iglesia_Madre || '') : '';
+      document.getElementById('ID_Parroquia').value = data ? data.ID_Parroquia : '';
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal').classList.remove('flex');
+      editandoId = null;
+    }
+
+    async function guardarIglesia() {
+      const body = {
+        Nombre_Iglesia: document.getElementById('Nombre_Iglesia').value,
+        Direccion: document.getElementById('Direccion').value,
+        Telefono_Iglesia_movil: document.getElementById('Telefono_Iglesia_movil').value || null,
+        Telefono_fijo: document.getElementById('Telefono_fijo').value || null,
+        Correo: document.getElementById('Correo').value || null,
+        ID_Iglesia_Madre: parseInt(document.getElementById('ID_Iglesia_Madre').value) || null,
+        ID_Ciudad: parseInt(document.getElementById('ID_Ciudad').value),
+        ID_Parroquia: parseInt(document.getElementById('ID_Parroquia').value),
+      };
+      const url = editandoId ? `/api/iglesias/${editandoId}` : '/api/iglesias';
+      const res = await fetch(url, {
+        method: editandoId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { alert('Error al guardar'); return; }
+      cerrarModal();
+      cargarIglesias(document.getElementById('searchInput').value);
+    }
+
+    async function editarIglesia(id) {
+      const res = await fetch(`/api/iglesias/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      const data = await res.json();
+      abrirFormulario(data);
+      if (data.ID_Ciudad) {
+        const ciudadRes = await fetch(`/api/geografia/ciudades/${data.ID_Ciudad}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!ciudadRes.ok) return;
+        const ciudad = await ciudadRes.json();
+        const estadoRes = await fetch(`/api/geografia/estados/${ciudad.ID_Estado}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!estadoRes.ok) return;
+        const estado = await estadoRes.json();
+        document.getElementById('ID_Pais').value = estado.ID_Pais;
+        document.getElementById('ID_Pais').dispatchEvent(new Event('change'));
+        setTimeout(() => {
+          document.getElementById('ID_Estado').value = ciudad.ID_Estado;
+          document.getElementById('ID_Estado').dispatchEvent(new Event('change'));
+        }, 300);
+        setTimeout(() => {
+          document.getElementById('ID_Ciudad').value = data.ID_Ciudad;
+          document.getElementById('ID_Parroquia').value = data.ID_Parroquia;
+        }, 600);
+      }
+    }
+
+    async function eliminarIglesia(id) {
+      if (!confirm('¿Eliminar esta iglesia?')) return;
+      const res = await fetch(`/api/iglesias/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { alert('Error al eliminar'); return; }
+      cargarIglesias(document.getElementById('searchInput').value);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', e => cargarIglesias(e.target.value));
+    cargarSelects();
+    cargarIglesias();
+  </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+{"type":"server-started","port":63487,"host":"0.0.0.0","url_host":"localhost","url":"http://localhost:63487","screen_dir":"/home/yosmar/Documentos/proyectos/seder/.superpowers/brainstorm/67686-1781386857/content","state_dir":"/home/yosmar/Documentos/proyectos/seder/.superpowers/brainstorm/67686-1781386857/state"}
+{"type":"screen-added","file":"/home/yosmar/Documentos/proyectos/seder/.superpowers/brainstorm/67686-1781386857/content/color-options.html"}
+{"type":"server-stopped","reason":"idle timeout"}

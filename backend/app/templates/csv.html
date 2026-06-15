@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carga CSV - SEDER</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex items-center gap-3">
+          <a href="/dashboard" class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center hover:bg-indigo-700">
+            <span class="text-white font-bold text-lg">S</span>
+          </a>
+          <div>
+            <h1 class="text-lg font-bold text-gray-900">Carga Masiva CSV</h1>
+            <p class="text-xs text-gray-500">Importar datos desde archivos CSV</p>
+          </div>
+        </div>
+        <button onclick="logout()" class="px-4 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="text-4xl mb-3">👥</div>
+        <h3 class="font-semibold text-gray-900 mb-1">Importar Miembros</h3>
+        <p class="text-sm text-gray-500 mb-4">CSV con columnas: Cedula, Nombres, Apellidos, Telefono, Sexo</p>
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-400 transition cursor-pointer" id="dropZoneMiembros">
+          <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </svg>
+          <p class="mt-2 text-sm text-gray-500">Arrastra el CSV aquí o haz clic</p>
+          <input type="file" accept=".csv" class="hidden" id="fileInputMiembros">
+        </div>
+        <button onclick="importar('miembros')" class="mt-4 w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50" id="btnMiembros" disabled>
+          Importar Miembros
+        </button>
+        <div id="resultadoMiembros" class="mt-4 hidden"></div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="text-4xl mb-3">📦</div>
+        <h3 class="font-semibold text-gray-900 mb-1">Importar Inventario</h3>
+        <p class="text-sm text-gray-500 mb-4">CSV con columnas: Nombre_Articulo, Marca, Modelo, Categoria, Cantidad</p>
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition cursor-pointer" id="dropZoneInventario">
+          <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </svg>
+          <p class="mt-2 text-sm text-gray-500">Arrastra el CSV aquí o haz clic</p>
+          <input type="file" accept=".csv" class="hidden" id="fileInputInventario">
+        </div>
+        <button onclick="importar('inventario')" class="mt-4 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50" id="btnInventario" disabled>
+          Importar Inventario
+        </button>
+        <div id="resultadoInventario" class="mt-4 hidden"></div>
+      </div>
+    </div>
+
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
+      <h4 class="font-semibold text-blue-800 text-sm mb-2">📌 Formato CSV recomendado</h4>
+      <p class="text-xs text-blue-700 mb-1"><strong>Miembros:</strong> Cedula,Nombres,Apellidos,Telefono,Sexo,Direccion</p>
+      <p class="text-xs text-blue-700"><strong>Inventario:</strong> Nombre_Articulo,Marca,Modelo,Categoria,Cantidad,Descripcion</p>
+      <p class="text-xs text-blue-600 mt-2">Separadores: coma (,), punto y coma (;) o tabulación.</p>
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/';
+
+    function logout() { localStorage.clear(); window.location.href = '/'; }
+
+    let archivoMiembros = null;
+    let archivoInventario = null;
+
+    function setupDropZone(dropId, inputId, tipo) {
+      const drop = document.getElementById(dropId);
+      const input = document.getElementById(inputId);
+
+      drop.addEventListener('click', () => input.click());
+      drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('border-indigo-400', 'bg-indigo-50'); });
+      drop.addEventListener('dragleave', () => { drop.classList.remove('border-indigo-400', 'bg-indigo-50'); });
+      drop.addEventListener('drop', e => {
+        e.preventDefault();
+        drop.classList.remove('border-indigo-400', 'bg-indigo-50');
+        if (e.dataTransfer.files.length) input.files = e.dataTransfer.files;
+        actualizarArchivo(tipo);
+      });
+      input.addEventListener('change', () => actualizarArchivo(tipo));
+    }
+
+    function actualizarArchivo(tipo) {
+      const input = document.getElementById(tipo === 'miembros' ? 'fileInputMiembros' : 'fileInputInventario');
+      const btn = document.getElementById(tipo === 'miembros' ? 'btnMiembros' : 'btnInventario');
+      const drop = document.getElementById(tipo === 'miembros' ? 'dropZoneMiembros' : 'dropZoneInventario');
+
+      if (input.files.length) {
+        if (tipo === 'miembros') archivoMiembros = input.files[0];
+        else archivoInventario = input.files[0];
+        btn.disabled = false;
+        drop.querySelector('p').textContent = input.files[0].name;
+      }
+    }
+
+    async function importar(tipo) {
+      const btn = document.getElementById(tipo === 'miembros' ? 'btnMiembros' : 'btnInventario');
+      const resultado = document.getElementById(tipo === 'miembros' ? 'resultadoMiembros' : 'resultadoInventario');
+      const archivo = tipo === 'miembros' ? archivoMiembros : archivoInventario;
+      if (!archivo) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Importando...';
+
+      const formData = new FormData();
+      formData.append('file', archivo);
+
+      try {
+        const res = await fetch(`/api/csv/${tipo}`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData,
+        });
+        const data = await res.json();
+        resultado.classList.remove('hidden');
+        if (res.ok) {
+          resultado.className = 'mt-4 p-3 rounded-lg bg-green-50 border border-green-200';
+          resultado.innerHTML = `
+            <p class="text-green-700 font-medium">✅ ${data.importados} registros importados</p>
+            ${data.errores?.length ? `<details class="mt-2"><summary class="text-sm text-yellow-600 cursor-pointer">${data.errores.length} errores</summary><ul class="mt-1 text-xs text-yellow-700 list-disc pl-4">${data.errores.map(e => `<li>${e}</li>`).join('')}</ul></details>` : ''}
+          `;
+        } else {
+          resultado.className = 'mt-4 p-3 rounded-lg bg-red-50 border border-red-200';
+          resultado.innerHTML = `<p class="text-red-700">❌ ${data.detail || 'Error al importar'}</p>`;
+        }
+      } catch (e) {
+        resultado.classList.remove('hidden');
+        resultado.className = 'mt-4 p-3 rounded-lg bg-red-50 border border-red-200';
+        resultado.innerHTML = `<p class="text-red-700">❌ Error de conexión</p>`;
+      }
+
+      btn.disabled = false;
+      btn.textContent = tipo === 'miembros' ? 'Importar Miembros' : 'Importar Inventario';
+    }
+
+    setupDropZone('dropZoneMiembros', 'fileInputMiembros', 'miembros');
+    setupDropZone('dropZoneInventario', 'fileInputInventario', 'inventario');
+  </script>
+</body>
+</html>

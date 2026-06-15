@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profesiones y Oficios - SEDER</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex items-center gap-3">
+          <a href="/dashboard" class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center hover:bg-indigo-700">
+            <span class="text-white font-bold text-lg">S</span>
+          </a>
+          <div>
+            <h1 class="text-lg font-bold text-gray-900">Profesiones y Oficios</h1>
+            <p class="text-xs text-gray-500">Catálogos del sistema</p>
+          </div>
+        </div>
+        <button onclick="logout()" class="px-4 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition">Cerrar Sesión</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="border-b border-gray-200 mb-6">
+      <nav class="flex gap-6">
+        <button onclick="cambiarTab('profesiones')" id="tabProfesiones" class="pb-3 px-1 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600">Profesiones</button>
+        <button onclick="cambiarTab('oficios')" id="tabOficios" class="pb-3 px-1 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">Oficios</button>
+      </nav>
+    </div>
+
+    <div id="sectionProfesiones">
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex gap-3 flex-1 max-w-md">
+          <input type="text" id="searchProfesion" placeholder="Buscar profesión..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+        </div>
+        <button onclick="abrirFormularioProfesion()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">+ Nueva Profesión</button>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <table class="w-full">
+          <thead class="bg-gray-50 border-b">
+            <tr><th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th><th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Acciones</th></tr>
+          </thead>
+          <tbody id="profesionesTableBody" class="divide-y divide-gray-100"></tbody>
+        </table>
+        <div id="loadingProfesiones" class="text-center py-8 text-gray-400">Cargando...</div>
+      </div>
+    </div>
+
+    <div id="sectionOficios" class="hidden">
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex gap-3 flex-1 max-w-md">
+          <input type="text" id="searchOficio" placeholder="Buscar oficio..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+        </div>
+        <button onclick="abrirFormularioOficio()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">+ Nuevo Oficio</button>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <table class="w-full">
+          <thead class="bg-gray-50 border-b">
+            <tr><th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th><th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Acciones</th></tr>
+          </thead>
+          <tbody id="oficiosTableBody" class="divide-y divide-gray-100"></tbody>
+        </table>
+        <div id="loadingOficios" class="text-center py-8 text-gray-400">Cargando...</div>
+      </div>
+    </div>
+  </main>
+
+  <div id="modal" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+    <div class="bg-white rounded-xl w-full max-w-md mx-4">
+      <div class="p-6 border-b">
+        <h3 id="modalTitle" class="text-lg font-bold text-gray-900">Nuevo</h3>
+      </div>
+      <form id="catalogoForm" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+          <input type="text" id="NombreItem" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+        </div>
+      </form>
+      <div class="p-6 border-t bg-gray-50 flex justify-end gap-3 rounded-xl">
+        <button onclick="cerrarModal()" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition">Cancelar</button>
+        <button onclick="guardarItem()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/';
+    let editandoId = null, editandoTipo = 'profesiones';
+
+    function logout() { localStorage.clear(); window.location.href = '/'; }
+
+    function cambiarTab(tab) {
+      document.getElementById('sectionProfesiones').classList.toggle('hidden', tab !== 'profesiones');
+      document.getElementById('sectionOficios').classList.toggle('hidden', tab !== 'oficios');
+      document.getElementById('tabProfesiones').className = tab === 'profesiones' ? 'pb-3 px-1 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600' : 'pb-3 px-1 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700';
+      document.getElementById('tabOficios').className = tab === 'oficios' ? 'pb-3 px-1 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600' : 'pb-3 px-1 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700';
+    }
+
+    async function cargarProfesiones(q = '') {
+      const url = q ? `/api/catalogos/profesiones?q=${encodeURIComponent(q)}` : '/api/catalogos/profesiones';
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+      document.getElementById('profesionesTableBody').innerHTML = data.map(p => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-900">${p.Nombre}</td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="editarItem('profesiones', ${p.ID})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3">Editar</button>
+            <button onclick="eliminarItem('profesiones', ${p.ID})" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('loadingProfesiones').classList.add('hidden');
+    }
+
+    async function cargarOficios(q = '') {
+      const url = q ? `/api/catalogos/oficios?q=${encodeURIComponent(q)}` : '/api/catalogos/oficios';
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { logout(); return; }
+      const data = await res.json();
+      document.getElementById('oficiosTableBody').innerHTML = data.map(o => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-900">${o.Nombre}</td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="editarItem('oficios', ${o.ID})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3">Editar</button>
+            <button onclick="eliminarItem('oficios', ${o.ID})" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('loadingOficios').classList.add('hidden');
+    }
+
+    function abrirFormularioProfesion() { editandoTipo = 'profesiones'; editandoId = null; document.getElementById('modalTitle').textContent = 'Nueva Profesión'; document.getElementById('NombreItem').value = ''; abrirModal(); }
+    function abrirFormularioOficio() { editandoTipo = 'oficios'; editandoId = null; document.getElementById('modalTitle').textContent = 'Nuevo Oficio'; document.getElementById('NombreItem').value = ''; abrirModal(); }
+
+    function abrirModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('modal').classList.add('flex'); }
+    function cerrarModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('modal').classList.remove('flex'); editandoId = null; }
+
+    async function guardarItem() {
+      const nombre = document.getElementById('NombreItem').value;
+      if (!nombre) return;
+      const baseUrl = editandoTipo === 'profesiones' ? '/api/catalogos/profesiones' : '/api/catalogos/oficios';
+      const url = editandoId ? `${baseUrl}/${editandoId}` : baseUrl;
+      const res = await fetch(url, {
+        method: editandoId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ Nombre: nombre }),
+      });
+      if (!res.ok) { alert('Error al guardar'); return; }
+      cerrarModal();
+      if (editandoTipo === 'profesiones') cargarProfesiones(document.getElementById('searchProfesion').value);
+      else cargarOficios(document.getElementById('searchOficio').value);
+    }
+
+    async function editarItem(tipo, id) {
+      const baseUrl = tipo === 'profesiones' ? '/api/catalogos/profesiones' : '/api/catalogos/oficios';
+      const res = await fetch(`${baseUrl}/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) return;
+      const data = await res.json();
+      editandoTipo = tipo;
+      editandoId = id;
+      document.getElementById('modalTitle').textContent = tipo === 'profesiones' ? 'Editar Profesión' : 'Editar Oficio';
+      document.getElementById('NombreItem').value = data.Nombre;
+      abrirModal();
+    }
+
+    async function eliminarItem(tipo, id) {
+      if (!confirm('¿Eliminar?')) return;
+      const baseUrl = tipo === 'profesiones' ? '/api/catalogos/profesiones' : '/api/catalogos/oficios';
+      const res = await fetch(`${baseUrl}/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { alert('Error al eliminar'); return; }
+      if (tipo === 'profesiones') cargarProfesiones(document.getElementById('searchProfesion').value);
+      else cargarOficios(document.getElementById('searchOficio').value);
+    }
+
+    document.getElementById('searchProfesion').addEventListener('input', e => cargarProfesiones(e.target.value));
+    document.getElementById('searchOficio').addEventListener('input', e => cargarOficios(e.target.value));
+    cargarProfesiones();
+    cargarOficios();
+  </script>
+</body>
+</html>
