@@ -44,6 +44,9 @@ Sistema de Administración para Iglesia (SEDER) construido con Python/FastAPI, M
 - Columnas en español con prefijo `ID_` para claves
 - `Estado_Asistencia` usa `String(20)` en SQLAlchemy (no SAEnum)
 - Seed data: 3 roles, 28+ permisos, datos de referencia
+- Charset: MySQL servidor en `utf8mb4` vía `command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci`
+- Seed files inician con `SET NAMES utf8mb4` para evitar doble-codificación
+- Backend conecta con `charset=utf8mb4` en connection string
 
 ## Decisiones Clave
 - `Miembro` en `miembro.py` (no en `usuario.py`) para evitar duplicación de tabla SQLAlchemy
@@ -51,6 +54,9 @@ Sistema de Administración para Iglesia (SEDER) construido con Python/FastAPI, M
 - bcrypt 4.1.3 pinneado para compatibilidad con passlib
 - `/grupos` redirige a `/ministerios` con 307 (permisos renombrados de `grupos.*` a `ministerios.*`)
 - Logo físico (`logoDiosesamor.jpg`) en `/static/` pero no se usa; se muestra texto "Dios es Amor / 1 Juan 4:8"
+- Charset: MySQL por defecto usa `latin1`. Se corrigió con 3 medidas: (1) `command` en docker-compose para server charset, (2) `SET NAMES utf8mb4` en seed files, (3) UPDATE directo a datos existentes con doble-codificación (`Ã³` → `ó`)
+- Imagen backend: no usar `docker export/import` para imágenes docker-compose — elimina `ContainerConfig` y rompe `docker-compose up`. Usar `docker commit` o rebuild limpio en su lugar.
+- Parentescos: catálogo fijo en tabla `Parentescos` con 12 valores predefinidos. `Miembros.ID_Parentesco` FK opcional. Gestionable desde modal en página de familias.
 
 ## Comandos Útiles
 ```bash
@@ -73,3 +79,9 @@ docker-compose logs -f backend          # Logs del backend
   - Reportes Excel/PDF con preview modal
   - Dashboard con sidebar lateral oscuro, módulos agrupados, stats/reports toggle
   - Catálogos API (/api/catalogos/* incluyendo ciudades y parroquias)
+    - **Auditoría**: Logging automático de crear/actualizar/eliminar en todos los módulos. Utilidad en `backend/app/utils/auditoria.py`. Datos visibles en `/auditoria`.
+  - **Familias + Parentesco**: Las familias muestran miembros con parentesco en la tabla. Modal "Gestionar Miembros" permite agregar/quitar miembros y asignar parentesco (catálogo fijo: Jefe de Hogar, Cónyuge, Hijo/a, etc). Endpoints: `POST/DELETE /api/familias/{id}/miembros/{miembro_id}`.
+
+## Fixes Aplicados
+- **UTF-8 / acentos**: Datos de Roles con doble-codificación corregidos via UPDATE. Causa raíz: MySQL con charset latin1 por defecto. Medidas: (1) `--character-set-server=utf8mb4` en docker-compose, (2) `SET NAMES utf8mb4` en seed files, (3) UPDATE a datos existentes con `CONVERT(CAST(CONVERT(columna USING latin1) AS BINARY) USING utf8mb4)`.
+- **Backend image**: Imagen se corrompió al hacer `docker export/import` (falta `ContainerConfig`, rompe docker-compose). Fix: `docker rmi` + rebuild limpio con `docker-compose build`.

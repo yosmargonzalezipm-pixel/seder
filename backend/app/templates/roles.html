@@ -170,8 +170,10 @@
       cargarRoles();
     }
 
-    await cargarPermisos();
-    cargarRoles();
+    (async () => {
+      await cargarPermisos();
+      cargarRoles();
+    })();
   </script>
 </body>
 </html>

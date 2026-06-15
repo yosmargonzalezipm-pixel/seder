@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Iglesia, CategoriaInventario, Ciudad, Parroquia, Familia
+from app.models import Iglesia, CategoriaInventario, Ciudad, Parroquia, Familia, Parentesco
 from app.models import Pais, Estado, Municipio
 from app.schemas.comun import SelectOption
 from app.utils.security import get_current_user
@@ -89,3 +89,11 @@ def listar_familias(
     db: Session = Depends(get_db),
 ):
     return [SelectOption(value=f.ID_Familia, label=f.Nombre_Familia) for f in db.query(Familia).all()]
+
+
+@router.get("/parentescos", response_model=list[SelectOption])
+def listar_parentescos(
+    usuario: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return [SelectOption(value=p.ID_Parentesco, label=p.Nombre) for p in db.query(Parentesco).all()]

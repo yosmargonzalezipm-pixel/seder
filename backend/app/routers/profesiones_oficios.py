@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models import Profesion, Oficio
 from app.schemas.profesion_oficio import CatalogoCreate, CatalogoUpdate, CatalogoOut
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/api/catalogos", tags=["Catálogos"])
@@ -50,6 +51,8 @@ def crear_profesion(
     db.add(p)
     db.commit()
     db.refresh(p)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Profesiones", p.ID_Profesion, "Crear profesión")
+    db.commit()
     return CatalogoOut(ID=p.ID_Profesion, Nombre=p.Nombre_Profesion)
 
 
@@ -69,6 +72,8 @@ def actualizar_profesion(
         p.Nombre_Profesion = data.Nombre
     db.commit()
     db.refresh(p)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Profesiones", p.ID_Profesion, "Actualizar profesión")
+    db.commit()
     return CatalogoOut(ID=p.ID_Profesion, Nombre=p.Nombre_Profesion)
 
 
@@ -83,7 +88,9 @@ def eliminar_profesion(
     p = db.query(Profesion).filter(Profesion.ID_Profesion == profesion_id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Profesión no encontrada")
+    id_p = p.ID_Profesion
     db.delete(p)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Profesiones", id_p, "Eliminar profesión")
     db.commit()
 
 
@@ -127,6 +134,8 @@ def crear_oficio(
     db.add(o)
     db.commit()
     db.refresh(o)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Oficios", o.ID_Oficio, "Crear oficio")
+    db.commit()
     return CatalogoOut(ID=o.ID_Oficio, Nombre=o.Nombre_Oficio)
 
 
@@ -146,6 +155,8 @@ def actualizar_oficio(
         o.Nombre_Oficio = data.Nombre
     db.commit()
     db.refresh(o)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Oficios", o.ID_Oficio, "Actualizar oficio")
+    db.commit()
     return CatalogoOut(ID=o.ID_Oficio, Nombre=o.Nombre_Oficio)
 
 
@@ -160,5 +171,7 @@ def eliminar_oficio(
     o = db.query(Oficio).filter(Oficio.ID_Oficio == oficio_id).first()
     if not o:
         raise HTTPException(status_code=404, detail="Oficio no encontrado")
+    id_o = o.ID_Oficio
     db.delete(o)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Oficios", id_o, "Eliminar oficio")
     db.commit()

@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models import Iglesia, Ciudad, Parroquia
 from app.schemas.iglesia import IglesiaCreate, IglesiaUpdate, IglesiaOut
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/api/iglesias", tags=["Iglesias"])
@@ -84,6 +85,8 @@ def crear_iglesia(
     db.add(i)
     db.commit()
     db.refresh(i)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Iglesias", i.ID_Iglesia, "Crear iglesia")
+    db.commit()
     return IglesiaOut(
         ID_Iglesia=i.ID_Iglesia,
         Nombre_Iglesia=i.Nombre_Iglesia,
@@ -118,6 +121,8 @@ def actualizar_iglesia(
         setattr(i, key, val)
     db.commit()
     db.refresh(i)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Iglesias", i.ID_Iglesia, "Actualizar iglesia")
+    db.commit()
     return IglesiaOut(
         ID_Iglesia=i.ID_Iglesia,
         Nombre_Iglesia=i.Nombre_Iglesia,
@@ -147,5 +152,7 @@ def eliminar_iglesia(
     i = db.query(Iglesia).filter(Iglesia.ID_Iglesia == iglesia_id).first()
     if not i:
         raise HTTPException(status_code=404, detail="Iglesia no encontrada")
+    id_i = i.ID_Iglesia
     db.delete(i)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Iglesias", id_i, "Eliminar iglesia")
     db.commit()

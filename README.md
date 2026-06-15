@@ -14,9 +14,9 @@ Sistema de administración eclesial para la Iglesia Dios es Amor, Tipuro.
 
 | Aplicación | URL | Usuario | Contraseña |
 |---|---|---|---|
-| **Sistema SEDER** | http://localhost:8086 | `admin` | `admin123` |
-| **phpMyAdmin** | http://localhost:8085 | `seder_user` | `seder_pass` |
-| **Usuario consulta** | http://localhost:8086 | `test` | `test123` |
+| **Sistema SEDER** | http://localhost:8086 | 
+| **phpMyAdmin** | http://localhost:8085 |
+| **Usuario consulta** | http://localhost:8086 |
 
 ## Roles del Sistema
 

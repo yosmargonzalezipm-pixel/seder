@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models import CategoriaInventario
 from app.schemas.profesion_oficio import CatalogoCreate, CatalogoUpdate, CatalogoOut
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/api/categorias", tags=["Categorías de Inventario"])
@@ -50,6 +51,8 @@ def crear_categoria(
     db.add(c)
     db.commit()
     db.refresh(c)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Categorías Inventario", c.ID_Categoria, "Crear categoría")
+    db.commit()
     return CatalogoOut(ID=c.ID_Categoria, Nombre=c.Nombre_Categoria)
 
 
@@ -69,6 +72,8 @@ def actualizar_categoria(
         c.Nombre_Categoria = data.Nombre
     db.commit()
     db.refresh(c)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Categorías Inventario", c.ID_Categoria, "Actualizar categoría")
+    db.commit()
     return CatalogoOut(ID=c.ID_Categoria, Nombre=c.Nombre_Categoria)
 
 
@@ -83,5 +88,7 @@ def eliminar_categoria(
     c = db.query(CategoriaInventario).filter(CategoriaInventario.ID_Categoria == categoria_id).first()
     if not c:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
+    id_c = c.ID_Categoria
     db.delete(c)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Categorías Inventario", id_c, "Eliminar categoría")
     db.commit()

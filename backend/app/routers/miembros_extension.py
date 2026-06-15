@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models import Miembro
 from app.models.usuario import Usuario
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 
 router = APIRouter(prefix="/api/miembros", tags=["Miembros"])
 
@@ -38,6 +39,7 @@ def actualizar_profesiones_miembro(
     from app.models import Profesion
     ids = data.get("profesiones", [])
     m.profesiones = db.query(Profesion).filter(Profesion.ID_Profesion.in_(ids)).all()
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Miembros", miembro_id, "Actualizar profesiones de miembro")
     db.commit()
     return {"mensaje": "Profesiones actualizadas"}
 
@@ -71,5 +73,6 @@ def actualizar_oficios_miembro(
     from app.models import Oficio
     ids = data.get("oficios", [])
     m.oficios = db.query(Oficio).filter(Oficio.ID_Oficio.in_(ids)).all()
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Miembros", miembro_id, "Actualizar oficios de miembro")
     db.commit()
     return {"mensaje": "Oficios actualizados"}

@@ -1,6 +1,6 @@
 from app.models.catalogos import (
     Pais, Estado, Municipio, Parroquia, Ciudad,
-    Profesion, Oficio, CategoriaInventario, Iglesia, Familia,
+    Profesion, Oficio, CategoriaInventario, Iglesia, Familia, Parentesco,
 )
 from app.models.miembro import Miembro, MiembroRol
 from app.models.inventario import Inventario, HistorialResguardo

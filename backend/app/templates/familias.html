@@ -50,6 +50,7 @@
     </div>
   </main>
 
+  <!-- Modal Nueva/Editar Familia -->
   <div id="modal" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
     <div class="bg-white rounded-2xl w-full max-w-lg mx-4">
       <div class="p-6 border-b">
@@ -74,10 +75,39 @@
     </div>
   </div>
 
+  <!-- Modal Gestionar Miembros -->
+  <div id="modalMiembros" class="fixed inset-0 bg-black/50 hidden z-50 items-center justify-center">
+    <div class="bg-white rounded-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
+      <div class="p-6 border-b flex justify-between items-center">
+        <h3 class="text-lg font-bold text-gray-900">Gestionar Miembros</h3>
+        <span id="modalMiembrosFamilia" class="text-sm text-gray-500"></span>
+      </div>
+      <div class="p-6 flex-1 overflow-y-auto">
+        <div class="flex gap-2 mb-4">
+          <select id="nuevoMiembroSelect" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+            <option value="">-- Seleccionar miembro --</option>
+          </select>
+          <select id="nuevoParentescoSelect" class="w-44 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400">
+            <option value="">Sin parentesco</option>
+          </select>
+          <button onclick="agregarMiembro()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium whitespace-nowrap">Agregar</button>
+        </div>
+        <div id="miembrosLista">
+          <p class="text-gray-400 text-center py-4" id="miembrosEmpty">Cargando miembros...</p>
+        </div>
+      </div>
+      <div class="p-6 border-t bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+        <button onclick="cerrarModalMiembros()" class="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg transition">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const token = localStorage.getItem('token');
     if (!token) window.location.href = '/';
     let editandoId = null;
+    let gestionandoFamiliaId = null;
+    let gestionandoFamiliaNombre = '';
 
     function logout() { localStorage.clear(); window.location.href = '/'; }
 
@@ -86,27 +116,26 @@
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) { logout(); return; }
       const data = await res.json();
+
       const tbody = document.getElementById('familiasTableBody');
       tbody.innerHTML = (await Promise.all(data.map(async f => {
-        let cabeza = '';
-        let numMiembros = 0;
+        let miembrosStr = '';
         try {
           const miembrosRes = await fetch(`/api/familias/${f.ID_Familia}/miembros`, { headers: { Authorization: `Bearer ${token}` } });
           if (miembrosRes.ok) {
             const miembros = await miembrosRes.json();
-            numMiembros = miembros.length;
-            if (f.ID_Cabeza_Familia) {
-              const c = miembros.find(m => m.ID_Miembro === f.ID_Cabeza_Familia);
-              cabeza = c ? `${c.Nombres} ${c.Apellidos}` : `ID: ${f.ID_Cabeza_Familia}`;
-            }
+            miembrosStr = miembros.map(m =>
+              `${m.Nombres} ${m.Apellidos}${m.Parentesco ? ` (${m.Parentesco})` : ''}`
+            ).join(', ');
           }
         } catch(e) {}
         return `<tr class="hover:bg-gray-50">
           <td class="px-4 py-3 text-sm font-medium text-gray-900">${f.Nombre_Familia}</td>
-          <td class="px-4 py-3 text-sm text-gray-600">${cabeza || '-'}</td>
-          <td class="px-4 py-3 text-sm text-gray-600">${numMiembros} miembro(s)</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${f.Cabeza_Familia_Nombre || '-'}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${miembrosStr || '—'}</td>
           <td class="px-4 py-3 text-right">
             <button onclick="editarFamilia(${f.ID_Familia})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-3">Editar</button>
+            <button onclick="gestionarMiembros(${f.ID_Familia}, '${f.Nombre_Familia.replace(/'/g, "\\'")}')" class="text-emerald-600 hover:text-emerald-800 text-sm font-medium mr-3">Miembros</button>
             <button onclick="eliminarFamilia(${f.ID_Familia})" class="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
           </td>
         </tr>`;
@@ -126,6 +155,101 @@
       } catch(e) {}
     }
 
+    // ---------- Gestionar Miembros ----------
+    async function cargarParentescosSelect() {
+      try {
+        const res = await fetch('/api/catalogos/parentescos', { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const parentescos = await res.json();
+          const sel = document.getElementById('nuevoParentescoSelect');
+          sel.innerHTML = '<option value="">Sin parentesco</option>' +
+            parentescos.map(p => `<option value="${p.value}">${p.label}</option>`).join('');
+        }
+      } catch(e) {}
+    }
+
+    async function cargarTodosMiembrosSelect() {
+      try {
+        const res = await fetch('/api/miembros', { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const miembros = await res.json();
+          const sel = document.getElementById('nuevoMiembroSelect');
+          sel.innerHTML = '<option value="">-- Seleccionar miembro --</option>' +
+            miembros.map(m => `<option value="${m.ID_Miembro}">${m.Nombres} ${m.Apellidos} (${m.Cedula})</option>`).join('');
+        }
+      } catch(e) {}
+    }
+
+    async function gestionarMiembros(id, nombre) {
+      gestionandoFamiliaId = id;
+      gestionandoFamiliaNombre = nombre;
+      document.getElementById('modalMiembrosFamilia').textContent = `Familia: ${nombre}`;
+      document.getElementById('modalMiembros').classList.remove('hidden');
+      document.getElementById('modalMiembros').classList.add('flex');
+      await cargarParentescosSelect();
+      await cargarTodosMiembrosSelect();
+      await cargarMiembrosFamilia();
+    }
+
+    function cerrarModalMiembros() {
+      document.getElementById('modalMiembros').classList.add('hidden');
+      document.getElementById('modalMiembros').classList.remove('flex');
+      gestionandoFamiliaId = null;
+    }
+
+    async function cargarMiembrosFamilia() {
+      const div = document.getElementById('miembrosLista');
+      try {
+        const res = await fetch(`/api/familias/${gestionandoFamiliaId}/miembros`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) { div.innerHTML = '<p class="text-gray-400 text-center py-4">Error al cargar miembros</p>'; return; }
+        const miembros = await res.json();
+        if (miembros.length === 0) {
+          div.innerHTML = '<p class="text-gray-400 text-center py-4">Sin miembros asignados</p>';
+          return;
+        }
+        div.innerHTML = miembros.map(m => `
+          <div class="flex items-center justify-between py-2 px-3 hover:bg-gray-50 rounded-lg">
+            <span class="text-sm text-gray-800">${m.Nombres} ${m.Apellidos} ${m.Parentesco ? `<span class="text-gray-400">(${m.Parentesco})</span>` : ''}</span>
+            <button onclick="quitarMiembro(${m.ID_Miembro})" class="text-red-500 hover:text-red-700 text-sm font-medium">Quitar</button>
+          </div>
+        `).join('');
+      } catch(e) {
+        div.innerHTML = '<p class="text-gray-400 text-center py-4">Error al cargar</p>';
+      }
+    }
+
+    async function agregarMiembro() {
+      const miembroId = parseInt(document.getElementById('nuevoMiembroSelect').value);
+      if (!miembroId) { alert('Seleccione un miembro'); return; }
+      const parentescoId = parseInt(document.getElementById('nuevoParentescoSelect').value) || null;
+      try {
+        const res = await fetch(`/api/familias/${gestionandoFamiliaId}/miembros/${miembroId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ ID_Parentesco: parentescoId }),
+        });
+        if (!res.ok) { const err = await res.json(); alert(err.detail || 'Error al asignar miembro'); return; }
+        document.getElementById('nuevoMiembroSelect').value = '';
+        document.getElementById('nuevoParentescoSelect').value = '';
+        await cargarMiembrosFamilia();
+        cargarFamilias(document.getElementById('searchInput').value);
+      } catch(e) { alert('Error al asignar miembro'); }
+    }
+
+    async function quitarMiembro(miembroId) {
+      if (!confirm('¿Quitar este miembro de la familia?')) return;
+      try {
+        const res = await fetch(`/api/familias/${gestionandoFamiliaId}/miembros/${miembroId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) { const err = await res.json(); alert(err.detail || 'Error al quitar miembro'); return; }
+        await cargarMiembrosFamilia();
+        cargarFamilias(document.getElementById('searchInput').value);
+      } catch(e) { alert('Error al quitar miembro'); }
+    }
+
+    // ---------- CRUD Familia ----------
     function abrirFormulario(data = null) {
       editandoId = data ? data.ID_Familia : null;
       document.getElementById('modalTitle').textContent = data ? 'Editar Familia' : 'Nueva Familia';

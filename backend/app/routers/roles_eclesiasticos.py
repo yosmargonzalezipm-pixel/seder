@@ -9,6 +9,7 @@ from app.schemas.rol_eclesiastico import (
     MiembroRolAsignar, MiembroRolOut,
 )
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 
 router = APIRouter(prefix="/api/roles-eclesiasticos", tags=["Roles Eclesiásticos"])
 
@@ -45,6 +46,8 @@ def crear_rol_eclesiastico(
     db.add(r)
     db.commit()
     db.refresh(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Roles Eclesiásticos", r.ID_Rol, "Crear rol eclesiástico")
+    db.commit()
     return RolEclesiasticoOut(ID_Rol=r.ID_Rol, Nombre_Rol=r.Nombre_Rol, Descripcion=r.Descripcion)
 
 
@@ -66,6 +69,8 @@ def actualizar_rol_eclesiastico(
         r.Descripcion = data.Descripcion
     db.commit()
     db.refresh(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Roles Eclesiásticos", r.ID_Rol, "Actualizar rol eclesiástico")
+    db.commit()
     total = db.query(MiembroRol).filter(MiembroRol.ID_Rol == rol_id).count()
     return RolEclesiasticoOut(ID_Rol=r.ID_Rol, Nombre_Rol=r.Nombre_Rol, Descripcion=r.Descripcion, Total_Miembros=total)
 
@@ -84,7 +89,9 @@ def eliminar_rol_eclesiastico(
     if not r:
         raise HTTPException(status_code=404, detail="Rol no encontrado")
     db.query(MiembroRol).filter(MiembroRol.ID_Rol == rol_id).delete()
+    id_rol = r.ID_Rol
     db.delete(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Roles Eclesiásticos", id_rol, "Eliminar rol eclesiástico")
     db.commit()
 
 # --- Asignación de roles a miembros ---
@@ -130,6 +137,7 @@ def asignar_rol(
         raise HTTPException(status_code=400, detail="El miembro ya tiene este rol asignado")
     mr = MiembroRol(ID_Miembro=miembro_id, ID_Rol=data.ID_Rol, Fecha_Asignacion=data.Fecha_Asignacion, Estado_Rol=data.Estado_Rol)
     db.add(mr)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Roles Eclesiásticos", None, f"Asignar rol eclesiástico a miembro {miembro_id}")
     db.commit()
     return {"mensaje": "Rol asignado correctamente"}
 
@@ -147,4 +155,5 @@ def remover_rol(
     if not mr:
         raise HTTPException(status_code=404, detail="Asignación no encontrada")
     db.delete(mr)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Roles Eclesiásticos", None, f"Remover rol eclesiástico de miembro {miembro_id}")
     db.commit()

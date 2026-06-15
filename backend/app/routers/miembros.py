@@ -6,6 +6,7 @@ from app.database import get_db
 from app.models import Miembro, Iglesia, Profesion, Oficio
 from app.schemas.miembro import MiembroCreate, MiembroUpdate, MiembroOut, MiembroListOut
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/api/miembros", tags=["Miembros"])
@@ -106,6 +107,8 @@ def crear_miembro(
     db.add(miembro)
     db.commit()
     db.refresh(miembro)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Miembros", miembro.ID_Miembro, "Crear miembro")
+    db.commit()
     return miembro
 
 
@@ -127,6 +130,8 @@ def actualizar_miembro(
         setattr(miembro, key, val)
     db.commit()
     db.refresh(miembro)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Miembros", miembro.ID_Miembro, "Actualizar miembro")
+    db.commit()
     return miembro
 
 
@@ -143,5 +148,7 @@ def eliminar_miembro(
     if not miembro:
         raise HTTPException(status_code=404, detail="Miembro no encontrado")
 
+    id_miembro = miembro.ID_Miembro
     db.delete(miembro)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Miembros", id_miembro, "Eliminar miembro")
     db.commit()

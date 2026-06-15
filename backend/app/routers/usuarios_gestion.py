@@ -6,6 +6,7 @@ from app.database import get_db
 from app.models import Usuario, Rol, Miembro
 from app.schemas.usuario_gestion import UsuarioCreate, UsuarioUpdate, UsuarioOut
 from app.utils.security import get_current_user, tiene_permiso, hash_password
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario as UsuarioModel
 
 router = APIRouter(prefix="/api/usuarios", tags=["Usuarios"])
@@ -99,6 +100,8 @@ def crear_usuario(
     db.add(u)
     db.commit()
     db.refresh(u)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Usuarios", u.ID_Usuario, "Crear usuario")
+    db.commit()
 
     return UsuarioOut(
         ID_Usuario=u.ID_Usuario,
@@ -140,6 +143,8 @@ def actualizar_usuario(
         setattr(u, key, val)
     db.commit()
     db.refresh(u)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Usuarios", u.ID_Usuario, "Actualizar usuario")
+    db.commit()
 
     return UsuarioOut(
         ID_Usuario=u.ID_Usuario,
@@ -169,7 +174,9 @@ def eliminar_usuario(
     if not u:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
+    id_u = u.ID_Usuario
     db.delete(u)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Usuarios", id_u, "Eliminar usuario")
     db.commit()
 
 
@@ -189,6 +196,9 @@ def toggle_activo(
     if not u:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
+    estado_anterior = u.Activo
     u.Activo = not u.Activo
+    accion = "Activar" if u.Activo else "Desactivar"
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Usuarios", u.ID_Usuario, f"{accion} usuario")
     db.commit()
     return {"Activo": u.Activo}

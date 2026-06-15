@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models.usuario import Rol, Permiso, RolPermiso, Usuario
 from app.schemas.rol import RolCreate, RolUpdate, RolOut, PermisoOut
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 
 router = APIRouter(prefix="/api/roles", tags=["Roles"])
 
@@ -75,6 +76,8 @@ def crear_rol(
 
     db.commit()
     db.refresh(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Roles", r.ID_Rol, "Crear rol")
+    db.commit()
     permiso_ids = [rp.ID_Permiso for rp in r.permisos]
     return RolOut(ID_Rol=r.ID_Rol, Nombre_Rol=r.Nombre_Rol, Descripcion=r.Descripcion, permisos=permiso_ids)
 
@@ -106,6 +109,8 @@ def actualizar_rol(
 
     db.commit()
     db.refresh(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Roles", r.ID_Rol, "Actualizar rol")
+    db.commit()
     permiso_ids = [rp.ID_Permiso for rp in r.permisos]
     return RolOut(ID_Rol=r.ID_Rol, Nombre_Rol=r.Nombre_Rol, Descripcion=r.Descripcion, permisos=permiso_ids)
 
@@ -131,5 +136,7 @@ def eliminar_rol(
         raise HTTPException(status_code=404, detail="Rol no encontrado")
 
     db.query(RolPermiso).filter(RolPermiso.ID_Rol == rol_id).delete()
+    id_rol = r.ID_Rol
     db.delete(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Roles", id_rol, "Eliminar rol")
     db.commit()

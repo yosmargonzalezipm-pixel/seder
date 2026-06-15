@@ -7,6 +7,7 @@ from app.models.asistencia import RegistroAsistencia
 from app.models import Miembro
 from app.schemas.asistencia import AsistenciaCreate, AsistenciaUpdate, AsistenciaOut
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/api/asistencia", tags=["Asistencia"])
@@ -94,6 +95,8 @@ def crear_asistencia(
     db.add(r)
     db.commit()
     db.refresh(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Asistencia", r.ID_Asistencia, "Crear asistencia")
+    db.commit()
 
     return AsistenciaOut(
         ID_Asistencia=r.ID_Asistencia,
@@ -123,6 +126,8 @@ def actualizar_asistencia(
         setattr(r, key, val)
     db.commit()
     db.refresh(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Asistencia", r.ID_Asistencia, "Actualizar asistencia")
+    db.commit()
 
     return AsistenciaOut(
         ID_Asistencia=r.ID_Asistencia,
@@ -147,5 +152,7 @@ def eliminar_asistencia(
     if not r:
         raise HTTPException(status_code=404, detail="Registro no encontrado")
 
+    id_asistencia = r.ID_Asistencia
     db.delete(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Asistencia", id_asistencia, "Eliminar asistencia")
     db.commit()

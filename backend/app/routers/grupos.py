@@ -6,6 +6,7 @@ from app.models.grupos import MinisterioGrupo, MiembroGrupo
 from app.models import Miembro
 from app.schemas.grupo import GrupoCreate, GrupoUpdate, GrupoOut, MiembroGrupoOut
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/api/grupos", tags=["Grupos"])
@@ -48,6 +49,8 @@ def crear_grupo(
     db.add(g)
     db.commit()
     db.refresh(g)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Ministerios", g.ID_Grupo, "Crear ministerio")
+    db.commit()
     return GrupoOut(
         ID_Grupo=g.ID_Grupo,
         Nombre_Grupo=g.Nombre_Grupo,
@@ -95,6 +98,8 @@ def actualizar_grupo(
         setattr(g, key, val)
     db.commit()
     db.refresh(g)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Ministerios", g.ID_Grupo, "Actualizar ministerio")
+    db.commit()
     return GrupoOut(
         ID_Grupo=g.ID_Grupo,
         Nombre_Grupo=g.Nombre_Grupo,
@@ -116,7 +121,9 @@ def eliminar_grupo(
     g = db.query(MinisterioGrupo).filter(MinisterioGrupo.ID_Grupo == grupo_id).first()
     if not g:
         raise HTTPException(status_code=404, detail="Grupo no encontrado")
+    id_g = g.ID_Grupo
     db.delete(g)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Ministerios", id_g, "Eliminar ministerio")
     db.commit()
 
 # --- Miembros del grupo ---
@@ -166,6 +173,7 @@ def agregar_miembro_grupo(
         raise HTTPException(status_code=400, detail="El miembro ya está en el grupo")
     mg = MiembroGrupo(ID_Grupo=grupo_id, ID_Miembro=miembro_id, Rol=data.get("Rol", "Integrante"))
     db.add(mg)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Ministerios", grupo_id, f"Agregar miembro {miembro_id} a ministerio")
     db.commit()
     return {"mensaje": "Miembro agregado al grupo"}
 
@@ -183,4 +191,5 @@ def remover_miembro_grupo(
     if not mg:
         raise HTTPException(status_code=404, detail="Miembro no está en el grupo")
     db.delete(mg)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Ministerios", grupo_id, f"Remover miembro {miembro_id} de ministerio")
     db.commit()

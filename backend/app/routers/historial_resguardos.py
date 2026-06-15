@@ -12,6 +12,7 @@ from app.schemas.historial_resguardo import (
     HistorialResguardoListOut,
 )
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/api/resguardos", tags=["Historial Resguardos"])
@@ -120,6 +121,8 @@ def crear_resguardo(
     db.add(r)
     db.commit()
     db.refresh(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Historial Resguardos", r.ID_Resguardo, "Crear resguardo")
+    db.commit()
     return r
 
 
@@ -141,6 +144,8 @@ def actualizar_resguardo(
         setattr(r, key, val)
     db.commit()
     db.refresh(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Historial Resguardos", r.ID_Resguardo, "Actualizar resguardo")
+    db.commit()
     return r
 
 
@@ -157,5 +162,7 @@ def eliminar_resguardo(
     if not r:
         raise HTTPException(status_code=404, detail="Resguardo no encontrado")
 
+    id_r = r.ID_Resguardo
     db.delete(r)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Historial Resguardos", id_r, "Eliminar resguardo")
     db.commit()

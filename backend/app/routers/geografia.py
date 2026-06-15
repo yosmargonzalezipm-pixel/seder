@@ -11,6 +11,7 @@ from app.schemas.geografia import (
     ParroquiaCreate, ParroquiaUpdate, ParroquiaOut,
 )
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/api/geografia", tags=["Geografía"])
@@ -57,6 +58,8 @@ def crear_pais(
     db.add(p)
     db.commit()
     db.refresh(p)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Geografía", p.ID_Pais, "Crear país")
+    db.commit()
     return p
 
 
@@ -76,6 +79,8 @@ def actualizar_pais(
         setattr(p, key, val)
     db.commit()
     db.refresh(p)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Geografía", p.ID_Pais, "Actualizar país")
+    db.commit()
     return p
 
 
@@ -90,7 +95,9 @@ def eliminar_pais(
     p = db.query(Pais).filter(Pais.ID_Pais == pais_id).first()
     if not p:
         raise HTTPException(status_code=404, detail="País no encontrado")
+    id_p = p.ID_Pais
     db.delete(p)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Geografía", id_p, "Eliminar país")
     db.commit()
 
 
@@ -141,6 +148,8 @@ def crear_estado(
     db.add(e)
     db.commit()
     db.refresh(e)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Geografía", e.ID_Estado, "Crear estado")
+    db.commit()
     pais = db.query(Pais).filter(Pais.ID_Pais == e.ID_Pais).first()
     return EstadoOut(ID_Estado=e.ID_Estado, Nombre_Estado=e.Nombre_Estado, ID_Pais=e.ID_Pais, Pais_Nombre=pais.Nombre_Pais if pais else "")
 
@@ -161,6 +170,8 @@ def actualizar_estado(
         setattr(e, key, val)
     db.commit()
     db.refresh(e)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Geografía", e.ID_Estado, "Actualizar estado")
+    db.commit()
     pais = db.query(Pais).filter(Pais.ID_Pais == e.ID_Pais).first()
     return EstadoOut(ID_Estado=e.ID_Estado, Nombre_Estado=e.Nombre_Estado, ID_Pais=e.ID_Pais, Pais_Nombre=pais.Nombre_Pais if pais else "")
 
@@ -176,7 +187,9 @@ def eliminar_estado(
     e = db.query(Estado).filter(Estado.ID_Estado == estado_id).first()
     if not e:
         raise HTTPException(status_code=404, detail="Estado no encontrado")
+    id_e = e.ID_Estado
     db.delete(e)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Geografía", id_e, "Eliminar estado")
     db.commit()
 
 
@@ -227,6 +240,8 @@ def crear_municipio(
     db.add(m)
     db.commit()
     db.refresh(m)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Geografía", m.ID_Municipio, "Crear municipio")
+    db.commit()
     estado = db.query(Estado).filter(Estado.ID_Estado == m.ID_Estado).first()
     return MunicipioOut(ID_Municipio=m.ID_Municipio, Nombre_Municipio=m.Nombre_Municipio, ID_Estado=m.ID_Estado, Estado_Nombre=estado.Nombre_Estado if estado else "")
 
@@ -247,6 +262,8 @@ def actualizar_municipio(
         setattr(m, key, val)
     db.commit()
     db.refresh(m)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Geografía", m.ID_Municipio, "Actualizar municipio")
+    db.commit()
     estado = db.query(Estado).filter(Estado.ID_Estado == m.ID_Estado).first()
     return MunicipioOut(ID_Municipio=m.ID_Municipio, Nombre_Municipio=m.Nombre_Municipio, ID_Estado=m.ID_Estado, Estado_Nombre=estado.Nombre_Estado if estado else "")
 
@@ -262,7 +279,9 @@ def eliminar_municipio(
     m = db.query(Municipio).filter(Municipio.ID_Municipio == municipio_id).first()
     if not m:
         raise HTTPException(status_code=404, detail="Municipio no encontrado")
+    id_m = m.ID_Municipio
     db.delete(m)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Geografía", id_m, "Eliminar municipio")
     db.commit()
 
 
@@ -313,6 +332,8 @@ def crear_ciudad(
     db.add(c)
     db.commit()
     db.refresh(c)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Geografía", c.ID_Ciudad, "Crear ciudad")
+    db.commit()
     estado = db.query(Estado).filter(Estado.ID_Estado == c.ID_Estado).first()
     return CiudadOut(ID_Ciudad=c.ID_Ciudad, Nombre_Ciudad=c.Nombre_Ciudad, ID_Estado=c.ID_Estado, Estado_Nombre=estado.Nombre_Estado if estado else "")
 
@@ -333,6 +354,8 @@ def actualizar_ciudad(
         setattr(c, key, val)
     db.commit()
     db.refresh(c)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Geografía", c.ID_Ciudad, "Actualizar ciudad")
+    db.commit()
     estado = db.query(Estado).filter(Estado.ID_Estado == c.ID_Estado).first()
     return CiudadOut(ID_Ciudad=c.ID_Ciudad, Nombre_Ciudad=c.Nombre_Ciudad, ID_Estado=c.ID_Estado, Estado_Nombre=estado.Nombre_Estado if estado else "")
 
@@ -348,7 +371,9 @@ def eliminar_ciudad(
     c = db.query(Ciudad).filter(Ciudad.ID_Ciudad == ciudad_id).first()
     if not c:
         raise HTTPException(status_code=404, detail="Ciudad no encontrada")
+    id_c = c.ID_Ciudad
     db.delete(c)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Geografía", id_c, "Eliminar ciudad")
     db.commit()
 
 
@@ -399,6 +424,8 @@ def crear_parroquia(
     db.add(p)
     db.commit()
     db.refresh(p)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Geografía", p.ID_Parroquia, "Crear parroquia")
+    db.commit()
     mun = db.query(Municipio).filter(Municipio.ID_Municipio == p.ID_Municipio).first()
     return ParroquiaOut(ID_Parroquia=p.ID_Parroquia, Nombre_Parroquia=p.Nombre_Parroquia, ID_Municipio=p.ID_Municipio, Municipio_Nombre=mun.Nombre_Municipio if mun else "")
 
@@ -419,6 +446,8 @@ def actualizar_parroquia(
         setattr(p, key, val)
     db.commit()
     db.refresh(p)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Geografía", p.ID_Parroquia, "Actualizar parroquia")
+    db.commit()
     mun = db.query(Municipio).filter(Municipio.ID_Municipio == p.ID_Municipio).first()
     return ParroquiaOut(ID_Parroquia=p.ID_Parroquia, Nombre_Parroquia=p.Nombre_Parroquia, ID_Municipio=p.ID_Municipio, Municipio_Nombre=mun.Nombre_Municipio if mun else "")
 
@@ -434,5 +463,7 @@ def eliminar_parroquia(
     p = db.query(Parroquia).filter(Parroquia.ID_Parroquia == parroquia_id).first()
     if not p:
         raise HTTPException(status_code=404, detail="Parroquia no encontrada")
+    id_p = p.ID_Parroquia
     db.delete(p)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Geografía", id_p, "Eliminar parroquia")
     db.commit()

@@ -6,6 +6,7 @@ from app.database import get_db
 from app.models import Inventario, CategoriaInventario
 from app.schemas.inventario import InventarioCreate, InventarioUpdate, InventarioOut, InventarioListOut
 from app.utils.security import get_current_user, tiene_permiso
+from app.utils.auditoria import registrar_auditoria
 from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/api/inventario", tags=["Inventario"])
@@ -78,6 +79,8 @@ def crear_articulo(
     db.add(art)
     db.commit()
     db.refresh(art)
+    registrar_auditoria(db, usuario.ID_Usuario, "Crear", "Inventario", art.ID_Articulo, "Crear inventario")
+    db.commit()
     return art
 
 
@@ -99,6 +102,8 @@ def actualizar_articulo(
         setattr(art, key, val)
     db.commit()
     db.refresh(art)
+    registrar_auditoria(db, usuario.ID_Usuario, "Actualizar", "Inventario", art.ID_Articulo, "Actualizar inventario")
+    db.commit()
     return art
 
 
@@ -115,5 +120,7 @@ def eliminar_articulo(
     if not art:
         raise HTTPException(status_code=404, detail="Artículo no encontrado")
 
+    id_art = art.ID_Articulo
     db.delete(art)
+    registrar_auditoria(db, usuario.ID_Usuario, "Eliminar", "Inventario", id_art, "Eliminar inventario")
     db.commit()

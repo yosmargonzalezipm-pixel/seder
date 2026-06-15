@@ -76,8 +76,15 @@ class Iglesia(Base):
     parroquia = relationship("Parroquia")
 
 
+class Parentesco(Base):
+    __tablename__ = "Parentescos"
+    ID_Parentesco = Column("ID_Parentesco", Integer, primary_key=True, autoincrement=True)
+    Nombre = Column("Nombre", String(100), nullable=False)
+
+
 class Familia(Base):
     __tablename__ = "Familias"
     ID_Familia = Column("ID_Familia", Integer, primary_key=True, autoincrement=True)
     Nombre_Familia = Column("Nombre_Familia", String(150), nullable=False)
     ID_Cabeza_Familia = Column("ID_Cabeza_Familia", Integer, ForeignKey("Miembros.ID_Miembro"), nullable=True)
+    cabeza_familia = relationship("Miembro", foreign_keys=[ID_Cabeza_Familia])

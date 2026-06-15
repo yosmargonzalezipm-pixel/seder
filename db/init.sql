@@ -2,6 +2,8 @@
 -- SCRIPT DE BASE DE DATOS PARA GESTIÓN ECLESIAL E INVENTARIO
 -- ============================================================================
 
+SET NAMES utf8mb4;
+
 -- ----------------------------------------------------------------------------
 -- 1. TABLAS CATÁLOGO DE UBICACIÓN GEOGRÁFICA
 -- ----------------------------------------------------------------------------
@@ -62,6 +64,11 @@ CREATE TABLE Roles (
 CREATE TABLE Categorias_Inventario (
     ID_Categoria INT AUTO_INCREMENT PRIMARY KEY,
     Nombre_Categoria VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Parentescos (
+    ID_Parentesco INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Permisos (
@@ -133,12 +140,14 @@ CREATE TABLE Miembros (
     Direccion TEXT,
     Sexo CHAR(1) CHECK (Sexo IN ('M', 'F')),
     Estado_Civil VARCHAR(50),
+    ID_Parentesco INT NULL,
     Creado_En DATETIME DEFAULT CURRENT_TIMESTAMP,
     Actualizado_En DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (ID_Iglesia) REFERENCES Iglesias(ID_Iglesia),
     FOREIGN KEY (ID_Familia) REFERENCES Familias(ID_Familia),
     FOREIGN KEY (ID_Ciudad) REFERENCES Ciudades(ID_Ciudad),
-    FOREIGN KEY (ID_Parroquia) REFERENCES Parroquias(ID_Parroquia)
+    FOREIGN KEY (ID_Parroquia) REFERENCES Parroquias(ID_Parroquia),
+    FOREIGN KEY (ID_Parentesco) REFERENCES Parentescos(ID_Parentesco)
 );
 
 ALTER TABLE Familias
@@ -303,6 +312,11 @@ CREATE INDEX idx_historial_articulo ON Historial_Resguardos(ID_Articulo);
 -- ----------------------------------------------------------------------------
 -- 12. DATOS SEMILLA
 -- ----------------------------------------------------------------------------
+
+INSERT INTO Parentescos (Nombre) VALUES
+('Jefe de Hogar'), ('Cónyuge'), ('Hijo/a'), ('Padre'),
+('Madre'), ('Abuelo/a'), ('Nieto/a'), ('Hermano/a'),
+('Tío/a'), ('Sobrino/a'), ('Primo/a'), ('Otro');
 
 INSERT INTO Roles (Nombre_Rol, Descripcion) VALUES
 ('Administrador', 'Acceso total a todas las funcionalidades del sistema'),
